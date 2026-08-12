@@ -9,12 +9,24 @@ Polling anonim untuk membaca preferensi terhadap calon Ketua Umum PP KAMMI dan k
 _Avoid_: Pemilu, voting resmi, mekanisme organisasi
 
 **Partisipan**:
-Orang yang memperoleh akses survei lalu menyatakan sendiri hubungan mereka dengan KAMMI. Status kader atau alumni tidak diverifikasi; karena itu partisipan bukan kader terverifikasi.
+Orang yang memperoleh akses survei dan diasumsikan merupakan kader aktif KAMMI. Project Mandala tidak memeriksa asumsi atau memverifikasi status tersebut; karena itu partisipan bukan kader terverifikasi.
 _Avoid_: Pemilih, kader terverifikasi
 
 **Profil Partisipan**:
-Sekumpulan data dasar yang dinyatakan sendiri oleh partisipan untuk mengelompokkan hasil tanpa mengungkap identitas individu. Dimensinya mencakup asal provinsi, asal kota, jenjang keanggotaan, dan level kepengurusan, serta dapat bertambah sebelum survei dibekukan.
+Sekumpulan data dasar yang dinyatakan sendiri oleh partisipan untuk mengelompokkan hasil tanpa mengungkap identitas individu. Dimensinya mencakup PW KAMMI dan PD KAMMI tempat partisipan menyatakan dirinya terdaftar, jenjang keanggotaan, dan level kepengurusan, serta dapat bertambah sebelum survei dibekukan. Keterdaftaran tersebut tidak diverifikasi oleh Project Mandala.
 _Avoid_: Identitas kader, data keanggotaan terverifikasi
+
+**Daftar Substruktur**:
+Daftar tertutup PW KAMMI dan PD KAMMI beserta relasinya yang disediakan dan dipelihara oleh Project Maintainer. Profil Partisipan hanya menerima PW dan PD dari daftar ini; unit di luar daftar tidak dapat dimasukkan lewat teks bebas.
+_Avoid_: Daftar wilayah administratif, registry resmi PP KAMMI
+
+**Jenjang Keanggotaan**:
+Jenjang Anggota Biasa yang sedang disandang dan dinyatakan sendiri oleh partisipan: AB I, AB II, atau AB III. Jenjang bergerak naik dari AB I hingga AB III dan tidak diverifikasi oleh Project Mandala.
+_Avoid_: Jenjang tertinggi yang pernah dicapai, status kader terverifikasi
+
+**Status Kepengurusan**:
+Kedudukan kepengurusan yang sedang dijalankan dan dinyatakan sendiri oleh partisipan. Status ini membedakan non-pengurus dari pengurus pada tingkat PP, PW, PD, PLN, atau PK, lalu mengelompokkan perannya sebagai Pimpinan (Ketua, Sekretaris, atau Bendahara), Ketua/Sekretaris Bidang, atau Staf Pengurus. Partisipan yang merangkap jabatan memilih sendiri satu jabatan aktif untuk dicatat.
+_Avoid_: Riwayat kepengurusan, jabatan terverifikasi
 
 **Kandidat**:
 Calon Ketua Umum PP KAMMI yang tersedia sebagai pilihan dalam Survei Preferensi. Daftar awal dimasukkan sebelum survei dibuka; nama baru dapat ditambahkan setelah melalui moderasi Respons.
@@ -23,6 +35,14 @@ _Avoid_: Pemenang
 **Nama Lain**:
 Nama yang ditulis sendiri oleh partisipan ketika pilihannya tidak tersedia dalam daftar Kandidat. Nama tersebut tersimpan sebagai Respons, lalu dapat menjadi pilihan bagi partisipan berikutnya setelah moderasi.
 _Avoid_: Kandidat terverifikasi
+
+**Belum Menentukan**:
+Pilihan Respons bagi partisipan yang telah menyelesaikan Survei Preferensi tetapi belum memilih Kandidat atau Nama Lain. Pilihan ini dihitung sebagai partisipasi, tetapi dipisahkan dari distribusi preferensi Kandidat.
+_Avoid_: Abstain resmi, suara tidak sah
+
+**Alasan dan Harapan**:
+Jawaban bebas opsional yang menjelaskan alasan di balik pilihan partisipan dan harapannya untuk Muktamar XIV KAMMI. Teks mentah tidak ditampilkan publik; penggunaan untuk tema agregat tunduk pada moderasi, disclosure-control, dan kebijakan AI.
+_Avoid_: Testimoni publik, kutipan berizin, identitas partisipan
 
 **Tautan Masuk**:
 Satu tautan bersama yang membuka percakapan dengan nomor WhatsApp Project Mandala. Tautan ini membatasi jalur penyebaran, tetapi tidak membuktikan status partisipan.
@@ -33,20 +53,24 @@ Ringkasan berjalan atas jumlah partisipasi dan hasil Survei Preferensi selama su
 _Avoid_: Hasil pemilu, pemenang resmi
 
 **Respons**:
-Pilihan final satu partisipan, unik per nomor WhatsApp namun tidak dianggap sebagai bukti satu kader unik. Respons dapat diperbarui sampai Survei Preferensi ditutup.
+Pilihan final dan Alasan dan Harapan opsional milik satu partisipan, unik per nomor WhatsApp namun tidak dianggap sebagai bukti satu kader unik. Respons dapat diperbarui sampai Survei Preferensi ditutup.
 _Avoid_: Suara sah, suara kader terverifikasi
 
 **Anonimitas Operasional**:
-Pemisahan nomor WhatsApp dari Respons setelah kuesioner diselesaikan. Nomor tetap disimpan terpisah untuk status partisipasi dan pengiriman update, sehingga konsep ini bukan anonimitas absolut.
+Pemisahan penyimpanan nomor WhatsApp dari isi Respons setelah kuesioner diselesaikan. Nomor tetap disimpan untuk status partisipasi, pengiriman update, dan pemberian Akses Edit; sistem masih dapat menghubungkan nomor dengan Respons untuk keperluan tersebut. Karena itu konsep ini bukan anonimitas absolut.
 _Avoid_: Anonimitas absolut
 
 **Project Maintainer**:
 Operator teknis tunggal yang menjalankan Survei Preferensi tanpa kewenangan mengubah isi Respons atau menilai keabsahan status kader partisipan.
 _Avoid_: Komite survei, validator kader
 
-**Token Edit**:
-Rahasia anonim yang diberikan setelah submit agar partisipan dapat mengubah Respons tanpa menyimpan relasi nomor WhatsApp dengan Respons tersebut.
-_Avoid_: Identitas partisipan, token keanggotaan
+**Akses Edit**:
+Kemampuan nomor WhatsApp yang sama untuk meminta dan menyimpan perubahan Respons sampai Survei Preferensi ditutup. Partisipan memulai perubahan dengan mengetik “ubah jawaban”; tidak ada token yang ditampilkan atau perlu dimasukkan.
+_Avoid_: Token publik, pemulihan dari nomor lain
+
+**Langganan Update**:
+Status penerimaan update mingguan Project Mandala melalui WhatsApp. Persetujuan awal menyebut langganan ini secara eksplisit; setiap Partisipan otomatis terdaftar setelah submit dan dapat berhenti melalui pengaturan jawaban atau tindakan berhenti yang disertakan pada setiap update.
+_Avoid_: Langganan tanpa disclosure, pesan wajib tanpa opt-out
 
 **Steering Committee Muktamar**:
 Panitia resmi PP KAMMI yang mengatur Muktamar XIV KAMMI serta menentukan tanggal dan waktu pelaksanaannya. Steering Committee Muktamar tidak memiliki hubungan dengan Project Mandala.
