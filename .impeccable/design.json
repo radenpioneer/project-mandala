@@ -1,0 +1,225 @@
+{
+  "schemaVersion": 2,
+  "generatedAt": "2026-08-13T23:46:59Z",
+  "title": "Design System: Project Mandala",
+  "extensions": {
+    "colorMeta": {
+      "tinta-gelap": {
+        "role": "neutral",
+        "displayName": "Tinta Gelap",
+        "canonical": "#162024",
+        "tonalRamp": ["oklch(15% 0.015 180)", "oklch(26% 0.015 180)", "oklch(38% 0.014 180)", "oklch(50% 0.013 180)", "oklch(62% 0.012 180)", "oklch(74% 0.010 180)", "oklch(86% 0.007 180)", "oklch(95% 0.004 180)"]
+      },
+      "teal-musyawarah": {
+        "role": "primary",
+        "displayName": "Teal Musyawarah",
+        "canonical": "#00665b",
+        "tonalRamp": ["oklch(15% 0.055 175)", "oklch(26% 0.070 175)", "oklch(38% 0.080 175)", "oklch(50% 0.078 175)", "oklch(62% 0.065 175)", "oklch(74% 0.050 175)", "oklch(86% 0.030 175)", "oklch(95% 0.012 175)"]
+      },
+      "kertas-hangat": {
+        "role": "neutral",
+        "displayName": "Kertas Hangat",
+        "canonical": "#f6f1e8",
+        "tonalRamp": ["oklch(15% 0.012 85)", "oklch(26% 0.014 85)", "oklch(38% 0.016 85)", "oklch(50% 0.018 85)", "oklch(62% 0.018 85)", "oklch(74% 0.016 85)", "oklch(86% 0.012 85)", "oklch(95% 0.008 85)"]
+      },
+      "surface": {
+        "role": "neutral",
+        "displayName": "Surface",
+        "canonical": "#ffffff",
+        "tonalRamp": ["oklch(15% 0 0)", "oklch(26% 0 0)", "oklch(38% 0 0)", "oklch(50% 0 0)", "oklch(62% 0 0)", "oklch(74% 0 0)", "oklch(86% 0 0)", "oklch(95% 0 0)"]
+      },
+      "muted": {
+        "role": "neutral",
+        "displayName": "Muted Text",
+        "canonical": "#65716a",
+        "tonalRamp": ["oklch(15% 0.012 155)", "oklch(26% 0.014 155)", "oklch(38% 0.016 155)", "oklch(50% 0.016 155)", "oklch(62% 0.014 155)", "oklch(74% 0.011 155)", "oklch(86% 0.007 155)", "oklch(95% 0.003 155)"]
+      },
+      "line": {
+        "role": "neutral",
+        "displayName": "Structural Line",
+        "canonical": "#d9ddd5",
+        "tonalRamp": ["oklch(15% 0.010 125)", "oklch(26% 0.012 125)", "oklch(38% 0.013 125)", "oklch(50% 0.013 125)", "oklch(62% 0.012 125)", "oklch(74% 0.010 125)", "oklch(86% 0.007 125)", "oklch(95% 0.003 125)"]
+      },
+      "soft-fill": {
+        "role": "neutral",
+        "displayName": "Soft Fill",
+        "canonical": "#edf0eb",
+        "tonalRamp": ["oklch(15% 0.010 135)", "oklch(26% 0.012 135)", "oklch(38% 0.013 135)", "oklch(50% 0.013 135)", "oklch(62% 0.012 135)", "oklch(74% 0.010 135)", "oklch(86% 0.007 135)", "oklch(95% 0.003 135)"]
+      },
+      "notice-paper": {
+        "role": "tertiary",
+        "displayName": "Notice Paper",
+        "canonical": "#fff9eb",
+        "tonalRamp": ["oklch(15% 0.030 85)", "oklch(26% 0.038 85)", "oklch(38% 0.045 85)", "oklch(50% 0.045 85)", "oklch(62% 0.040 85)", "oklch(74% 0.032 85)", "oklch(86% 0.020 85)", "oklch(95% 0.010 85)"]
+      },
+      "notice-line": {
+        "role": "tertiary",
+        "displayName": "Notice Line",
+        "canonical": "#dfcaa0",
+        "tonalRamp": ["oklch(15% 0.030 80)", "oklch(26% 0.040 80)", "oklch(38% 0.050 80)", "oklch(50% 0.055 80)", "oklch(62% 0.050 80)", "oklch(74% 0.040 80)", "oklch(86% 0.025 80)", "oklch(95% 0.010 80)"]
+      },
+      "candidate-teal": {
+        "role": "secondary",
+        "displayName": "Candidate Teal",
+        "canonical": "#087f6c",
+        "tonalRamp": ["oklch(15% 0.060 170)", "oklch(26% 0.080 170)", "oklch(38% 0.095 170)", "oklch(50% 0.095 170)", "oklch(62% 0.080 170)", "oklch(74% 0.060 170)", "oklch(86% 0.036 170)", "oklch(95% 0.014 170)"]
+      },
+      "candidate-ochre": {
+        "role": "secondary",
+        "displayName": "Candidate Ochre",
+        "canonical": "#ca8a2d",
+        "tonalRamp": ["oklch(15% 0.060 75)", "oklch(26% 0.090 75)", "oklch(38% 0.120 75)", "oklch(50% 0.135 75)", "oklch(62% 0.125 75)", "oklch(74% 0.095 75)", "oklch(86% 0.055 75)", "oklch(95% 0.020 75)"]
+      },
+      "candidate-blue": {
+        "role": "secondary",
+        "displayName": "Candidate Blue",
+        "canonical": "#285f75",
+        "tonalRamp": ["oklch(15% 0.045 225)", "oklch(26% 0.065 225)", "oklch(38% 0.080 225)", "oklch(50% 0.080 225)", "oklch(62% 0.068 225)", "oklch(74% 0.052 225)", "oklch(86% 0.032 225)", "oklch(95% 0.012 225)"]
+      },
+      "candidate-plum": {
+        "role": "secondary",
+        "displayName": "Candidate Plum",
+        "canonical": "#8d668b",
+        "tonalRamp": ["oklch(15% 0.040 325)", "oklch(26% 0.060 325)", "oklch(38% 0.075 325)", "oklch(50% 0.080 325)", "oklch(62% 0.070 325)", "oklch(74% 0.052 325)", "oklch(86% 0.030 325)", "oklch(95% 0.012 325)"]
+      },
+      "candidate-olive": {
+        "role": "secondary",
+        "displayName": "Candidate Olive",
+        "canonical": "#6f8d49",
+        "tonalRamp": ["oklch(15% 0.045 125)", "oklch(26% 0.065 125)", "oklch(38% 0.085 125)", "oklch(50% 0.090 125)", "oklch(62% 0.080 125)", "oklch(74% 0.060 125)", "oklch(86% 0.035 125)", "oklch(95% 0.014 125)"]
+      },
+      "candidate-terracotta": {
+        "role": "secondary",
+        "displayName": "Candidate Terracotta",
+        "canonical": "#b75b4b",
+        "tonalRamp": ["oklch(15% 0.055 30)", "oklch(26% 0.080 30)", "oklch(38% 0.105 30)", "oklch(50% 0.115 30)", "oklch(62% 0.100 30)", "oklch(74% 0.075 30)", "oklch(86% 0.045 30)", "oklch(95% 0.016 30)"]
+      },
+      "unavailable": {
+        "role": "neutral",
+        "displayName": "Unavailable",
+        "canonical": "#aeb7b0",
+        "tonalRamp": ["oklch(15% 0.009 155)", "oklch(26% 0.011 155)", "oklch(38% 0.012 155)", "oklch(50% 0.012 155)", "oklch(62% 0.011 155)", "oklch(74% 0.009 155)", "oklch(86% 0.006 155)", "oklch(95% 0.003 155)"]
+      }
+    },
+    "typographyMeta": {
+      "headline": { "displayName": "Headline", "purpose": "Dialog titles and major state headings." },
+      "title": { "displayName": "Title", "purpose": "Section and data-module headings." },
+      "body": { "displayName": "Body", "purpose": "Dense labels, table content, metadata, and explanatory copy." },
+      "label": { "displayName": "Label", "purpose": "Uppercase eyebrows, categories, and table headers." }
+    },
+    "shadows": [
+      { "name": "panel-ambient", "value": "0 12px 40px rgb(39 48 40 / 7%)", "purpose": "Low ambient lift for an active panel joined to its tab rail." },
+      { "name": "floating-context", "value": "0 14px 35px rgb(20 30 25 / 25%)", "purpose": "Tooltip and nearby floating context." },
+      { "name": "modal-focus", "value": "0 24px 80px rgb(5 15 11 / 38%)", "purpose": "Highest layer for modal dialogs over a dark backdrop." }
+    ],
+    "motion": [
+      { "name": "tooltip-reveal", "value": "opacity 150ms ease, transform 150ms ease", "purpose": "Short contextual reveal without drawing attention away from the data." },
+      { "name": "reduced-motion", "value": "prefers-reduced-motion: reduce", "purpose": "Disables smooth scrolling for visitors who request reduced motion." }
+    ],
+    "breakpoints": [
+      { "name": "compact", "value": "820px" },
+      { "name": "mobile", "value": "560px" }
+    ]
+  },
+  "components": [
+    {
+      "name": "Data Tabs",
+      "kind": "nav",
+      "refersTo": "tab-active",
+      "description": "A tonal tab rail that binds the selected data lens to its panel.",
+      "html": "<nav class=\"ds-tabs\" aria-label=\"Tampilan dashboard\"><button class=\"ds-tab ds-tab-active\">Standing</button><button class=\"ds-tab\">Per PW</button><button class=\"ds-tab\">Per PD</button></nav>",
+      "css": ".ds-tabs{display:flex;gap:4px;padding:5px;border:1px solid #d9ddd5;border-bottom:0;border-radius:10px 10px 0 0;background:#e9e9e1}.ds-tab{min-height:42px;padding:0 18px;border:0;border-radius:7px;background:transparent;color:#65716a;font:700 13px Inter,ui-sans-serif,system-ui,sans-serif;cursor:pointer}.ds-tab:hover{color:#00665b}.ds-tab-active{background:#fff;color:#162024;box-shadow:0 2px 8px rgb(39 48 40 / 8%)}.ds-tab:focus-visible{outline:3px solid #276754;outline-offset:3px}"
+    },
+    {
+      "name": "Secondary Button",
+      "kind": "button",
+      "refersTo": "button-secondary",
+      "description": "A restrained action for disclosure, reset, and recovery flows.",
+      "html": "<button class=\"ds-button-secondary\">Hapus sebagian filter</button>",
+      "css": ".ds-button-secondary{min-height:42px;padding:10px 14px;border:1px solid #162024;border-radius:8px;background:transparent;color:#162024;font:700 13px Inter,ui-sans-serif,system-ui,sans-serif;cursor:pointer}.ds-button-secondary:hover{background:#edf0eb}.ds-button-secondary:active{transform:translateY(1px)}.ds-button-secondary:focus-visible{outline:3px solid #276754;outline-offset:3px}"
+    },
+    {
+      "name": "Filter Select",
+      "kind": "input",
+      "refersTo": "select",
+      "description": "A compact, full-width field for participant-profile filters.",
+      "html": "<label class=\"ds-field\"><span>PW</span><select><option>Semua</option><option>Jawa Barat</option></select></label>",
+      "css": ".ds-field{display:grid;gap:6px;color:#65716a;font:700 12px Inter,ui-sans-serif,system-ui,sans-serif}.ds-field select{width:100%;min-height:44px;padding:0 34px 0 12px;border:1px solid #d9ddd5;border-radius:8px;background:#fff;color:#162024;font:400 13px Inter,ui-sans-serif,system-ui,sans-serif}.ds-field select:hover{border-color:#aeb7b0}.ds-field select:focus-visible{outline:3px solid #276754;outline-offset:3px}"
+    },
+    {
+      "name": "Active Filter Chip",
+      "kind": "chip",
+      "refersTo": "chip",
+      "description": "A text-first pill that names the active participant cohort.",
+      "html": "<span class=\"ds-chip\">PW Jawa Barat</span>",
+      "css": ".ds-chip{display:inline-flex;align-items:center;padding:7px 10px;border-radius:999px;background:#e3f1eb;color:#00665b;font:700 12px Inter,ui-sans-serif,system-ui,sans-serif}"
+    },
+    {
+      "name": "Standing Status",
+      "kind": "card",
+      "refersTo": "data-panel",
+      "description": "A compact status block with redundant text and color cues.",
+      "html": "<div class=\"ds-status\"><span class=\"ds-status-dot\" aria-hidden=\"true\"></span><div><strong>Standing sementara</strong><small>Survei masih berlangsung · dapat berubah</small></div></div>",
+      "css": ".ds-status{display:flex;align-items:center;gap:12px;min-width:260px;padding:9px 12px;border:1px solid #d9ddd5;border-radius:12px;background:#fff;color:#162024;font-family:Inter,ui-sans-serif,system-ui,sans-serif}.ds-status-dot{width:10px;height:10px;flex:none;border-radius:50%;background:#00665b;box-shadow:0 0 0 5px #d9eee5}.ds-status strong,.ds-status small{display:block}.ds-status strong{font-size:13px}.ds-status small{margin-top:2px;color:#65716a;font-size:11px}"
+    },
+    {
+      "name": "Ranked Data Row",
+      "kind": "custom",
+      "description": "The signature ordinal-name-track-value row used for candidate standing.",
+      "html": "<div class=\"ds-rank-row\"><span class=\"ds-rank\">1</span><button class=\"ds-candidate\">Ahmad Fauzan</button><span class=\"ds-track\"><i></i></span><span class=\"ds-value\"><b>10%</b><small>500</small></span></div>",
+      "css": ".ds-rank-row{display:grid;grid-template-columns:30px minmax(140px,210px) minmax(120px,1fr) 70px;align-items:center;gap:12px;min-height:42px;padding:5px 8px;border-radius:7px;color:#162024;font-family:Inter,ui-sans-serif,system-ui,sans-serif}.ds-rank-row:hover{background:#f3f5f0}.ds-rank{color:#8a948e;font:700 11px ui-monospace,monospace;text-align:right}.ds-candidate{overflow:hidden;padding:4px 0;border:0;border-bottom:1px dotted #728078;background:transparent;color:#162024;font-size:13px;font-weight:800;text-align:left;text-overflow:ellipsis;white-space:nowrap;cursor:pointer}.ds-candidate:hover{color:#00665b}.ds-candidate:focus-visible{outline:3px solid #276754;outline-offset:3px}.ds-track{height:12px;overflow:hidden;border-radius:999px;background:#edf0eb}.ds-track i{display:block;width:58%;height:100%;border-radius:inherit;background:#087f6c}.ds-value{text-align:right}.ds-value b,.ds-value small{display:block}.ds-value b{font-size:13px}.ds-value small{color:#65716a;font-size:10px}"
+    },
+    {
+      "name": "Context Tooltip",
+      "kind": "custom",
+      "description": "A dark, compact Top 3 context card revealed by hover or keyboard focus.",
+      "html": "<span class=\"ds-tooltip\"><button aria-describedby=\"ds-top-three\">PD Bandung</button><span class=\"ds-tooltip-card\" role=\"tooltip\" id=\"ds-top-three\"><b>Top 3</b><span><i>1</i>Ahmad Fauzan<strong>28%</strong></span><span><i>2</i>Candra Wijaya<strong>20%</strong></span></span></span>",
+      "css": ".ds-tooltip{position:relative;display:inline-flex;font-family:Inter,ui-sans-serif,system-ui,sans-serif}.ds-tooltip>button{padding:2px 0;border:0;border-bottom:1px dotted #6a756e;background:transparent;color:#162024;font-weight:800;cursor:help}.ds-tooltip-card{position:absolute;z-index:2;top:calc(100% + 9px);left:0;display:grid;gap:8px;width:270px;padding:14px;border:1px solid #34433b;border-radius:9px;background:#17211c;color:#fff;box-shadow:0 14px 35px rgb(20 30 25 / 25%);opacity:0;pointer-events:none;transform:translateY(-4px);transition:opacity 150ms ease,transform 150ms ease;visibility:hidden}.ds-tooltip:hover .ds-tooltip-card,.ds-tooltip:focus-within .ds-tooltip-card{opacity:1;transform:translateY(0);visibility:visible}.ds-tooltip-card>b{color:#a9bbb1;font-size:10px;letter-spacing:.08em;text-transform:uppercase}.ds-tooltip-card>span{display:grid;grid-template-columns:18px 1fr auto;gap:7px;font-size:12px}.ds-tooltip-card i{color:#9dac9f;font-style:normal}.ds-tooltip-card strong{color:#94dbc5}.ds-tooltip>button:focus-visible{outline:3px solid #276754;outline-offset:3px}"
+    },
+    {
+      "name": "Candidate Dialog",
+      "kind": "custom",
+      "refersTo": "dialog",
+      "description": "A high-focus overlay for candidate or region detail without replacing the global standing.",
+      "html": "<section class=\"ds-dialog\" role=\"dialog\" aria-modal=\"true\" aria-labelledby=\"ds-dialog-title\"><button class=\"ds-dialog-close\" aria-label=\"Tutup detail\">×</button><span class=\"ds-eyebrow\">Profil bakal kandidat · data simulasi</span><h2 id=\"ds-dialog-title\">Ahmad Fauzan</h2><p>Peringkat 1 · 10% · 500 partisipan</p></section>",
+      "css": ".ds-dialog{position:relative;width:min(520px,100%);padding:30px;border:0;border-radius:16px;background:#fff;color:#162024;box-shadow:0 24px 80px rgb(5 15 11 / 38%);font-family:Inter,ui-sans-serif,system-ui,sans-serif}.ds-dialog h2{margin:7px 0 3px;font-size:28px;letter-spacing:-.04em}.ds-dialog p{margin:0;color:#65716a;font-size:13px}.ds-eyebrow{display:block;color:#00665b;font-size:10px;font-weight:800;letter-spacing:.08em;text-transform:uppercase}.ds-dialog-close{position:absolute;top:14px;right:16px;width:36px;height:36px;border:0;border-radius:50%;background:#eef1eb;color:#162024;font-size:22px;cursor:pointer}.ds-dialog-close:hover{background:#dfe5df}.ds-dialog-close:focus-visible{outline:3px solid #276754;outline-offset:3px}"
+    }
+  ],
+  "narrative": {
+    "northStar": "Meja Redaksi Data",
+    "overview": "Project Mandala terasa seperti meja redaksi yang mengolah data publik dengan tenang: editorial, analitis, dan hangat. Latar berkarakter kertas menahan ketegangan visual, tinta gelap menjaga keterbacaan, dan teal dipakai sebagai penanda tindakan serta konteks—bukan sebagai dekorasi yang mendominasi data.\n\nSistem ini padat namun tidak gaduh. Struktur datang dari tab, garis, jarak, pengelompokan, dan hierarki angka; bayangan hanya membantu lapisan yang benar-benar terangkat. Setiap pilihan visual harus memperkuat transparansi dan kehati-hatian, tanpa terasa seperti papan skor malam pemilu, dashboard fintech, atau portal resmi pemerintah.",
+    "keyCharacteristics": [
+      "Editorial dan chart-first, dengan data sebagai pusat perhatian.",
+      "Hangat dan manusiawi tanpa mengurangi ketelitian analitis.",
+      "Transparan mengenai status, keterbatasan, dan data yang ditahan.",
+      "Padat, adaptif, dan dapat dipindai pada desktop maupun mobile.",
+      "Aksen visual terkendali; warna kandidat tetap setara dan fungsional."
+    ],
+    "rules": [
+      { "name": "The Quiet Accent Rule", "body": "Teal menandai aksi, pilihan, atau konteks penting; jangan menyebarkannya sebagai dekorasi di seluruh layar.", "section": "colors" },
+      { "name": "The Candidate Parity Rule", "body": "Semua warna kandidat memiliki bobot visual yang setara dan tidak pernah dipakai sebagai warna merek atau sinyal dukungan.", "section": "colors" },
+      { "name": "The Explicit Suppression Rule", "body": "State data ditahan memakai warna netral sekaligus teks yang jelas; warna saja tidak pernah cukup.", "section": "colors" },
+      { "name": "The Data Voice Rule", "body": "Gunakan bobot dan tabular alignment untuk hierarki data; jangan memperkenalkan typeface dekoratif untuk membuat dashboard terasa penting.", "section": "typography" },
+      { "name": "The Small Copy Rule", "body": "Teks kecil selalu memiliki fungsi metadata dan tetap berkontras; jangan mengecilkan batasan atau disclosure agar menghilang.", "section": "typography" },
+      { "name": "The One Active Lens Rule", "body": "Tampilkan satu lensa data utama per tab; detail kandidat atau wilayah masuk ke dialog, bukan mengubah Standing global secara terselubung.", "section": "layout" },
+      { "name": "The Preserve the Evidence Rule", "body": "Pada mobile, ubah struktur tabel menjadi blok berlabel atau berikan scroll yang jujur; jangan menghapus kolom atau konteks tanpa penanda.", "section": "layout" },
+      { "name": "The Structural First Rule", "body": "Bangun kedalaman dengan border, tonal layering, dan posisi terlebih dahulu; tambahkan shadow hanya ketika sebuah lapisan benar-benar berada di atas yang lain.", "section": "elevation" },
+      { "name": "The Nested Radius Rule", "body": "Radius meningkat mengikuti tingkat kedekatan dan elevasi: panel data paling tegas, kontrol lebih ramah, overlay paling lembut.", "section": "shapes" }
+    ],
+    "dos": [
+      "**Do** letakkan data, status, dan batas interpretasi dalam hierarchy yang dapat dipindai tanpa bergantung pada warna.",
+      "**Do** gunakan Kertas Hangat sebagai kanvas dan Surface putih sebagai lapisan kerja utama.",
+      "**Do** pertahankan tinggi kontrol minimal 42–44px dan focus-visible outline 3px.",
+      "**Do** gunakan Spektrum Pembeda hanya untuk membedakan kandidat atau seri data dengan bobot yang setara.",
+      "**Do** pertahankan perilaku adaptif: ranking reflow, tabel menjadi blok berlabel, dan tab/peta boleh scroll bila konteks perlu dipertahankan."
+    ],
+    "donts": [
+      "**Don't** membuat antarmuka terasa seperti papan skor malam pemilu atau mengubah ranking menjadi deklarasi pemenang.",
+      "**Don't** mengadopsi kilau, gradien, kartu metrik, atau bahasa pertumbuhan ala dashboard fintech.",
+      "**Don't** meniru formalitas dan ornamentasi portal resmi pemerintah; Project Mandala tetap independen dan editorial.",
+      "**Don't** memakai warna kandidat sebagai aksen merek, status sukses, atau CTA.",
+      "**Don't** menyembunyikan suppression, keterbatasan, atau microcopy penting melalui kontras rendah, ukuran ekstrem kecil, atau hover-only disclosure.",
+      "**Don't** memasukkan kontrol prototipe Varian A/B/C ke dalam komponen produksi atau design system."
+    ]
+  }
+}

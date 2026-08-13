@@ -1,17 +1,252 @@
 {
   "version": 1,
   "skills": {
+    "aggregation": {
+      "source": "@tanstack/table-core",
+      "sourceType": "node_modules",
+      "computedHash": "cc8331508af7e32423b652a86f3e4ba664df91d7f56cd9c663e4a6b8491e9a82"
+    },
+    "api-not-found": {
+      "source": "@tanstack/table-core",
+      "sourceType": "node_modules",
+      "computedHash": "98d6dd8fe28cff040bdce698f1ef3b2b2d094b86d997bf106763b850956b416c"
+    },
+    "build-chart-interactions": {
+      "source": "@tanstack/charts",
+      "sourceType": "node_modules",
+      "computedHash": "760e7ff3c31d85e6469c50a2c33c70fa374606631e47fbfb085284fd3bf9e8e4"
+    },
+    "cell-selection": {
+      "source": "@tanstack/table-core",
+      "sourceType": "node_modules",
+      "computedHash": "2cd58ae93731c3740d21150742ef43c57e49594480ff2ce3a6b492a3aeed4857"
+    },
+    "cell-spanning": {
+      "source": "@tanstack/table-core",
+      "sourceType": "node_modules",
+      "computedHash": "0e0156ab6fd7654c08822a5bb5b84d7c6ea2d9297f738fe629bf27b4c66f80cb"
+    },
+    "client-vs-server": {
+      "source": "@tanstack/table-core",
+      "sourceType": "node_modules",
+      "computedHash": "c25dcdb4e413eb304261a819d14d33313dc045210e8b4971e2d720d5b2ace73b"
+    },
     "cloudflare": {
       "source": "cloudflare/skills",
       "sourceType": "github",
       "skillPath": "skills/cloudflare/SKILL.md",
       "computedHash": "a1646a6a2fb7cc683de5bf8357e5d6ae02db6fd0bf771d633c1890318e25bff2"
     },
+    "column-faceting": {
+      "source": "@tanstack/table-core",
+      "sourceType": "node_modules",
+      "computedHash": "f240eb2453de854904361625f326b7435dba14958bb30d1294e76655aaea7f16"
+    },
+    "column-filtering": {
+      "source": "@tanstack/table-core",
+      "sourceType": "node_modules",
+      "computedHash": "107de70a3915b6f1b50341d883bb7b8c8c51852089c910e8f6bdccd19e85e443"
+    },
+    "column-ordering": {
+      "source": "@tanstack/table-core",
+      "sourceType": "node_modules",
+      "computedHash": "61109ec0fc6bcc16943aff772a3d89f56c77760f34ba71135af71c07bda3e77f"
+    },
+    "column-pinning": {
+      "source": "@tanstack/table-core",
+      "sourceType": "node_modules",
+      "computedHash": "c46d17813f35aa15b1c8a325c15098f71531c8832178029317a9a45443b03380"
+    },
+    "column-resizing": {
+      "source": "@tanstack/table-core",
+      "sourceType": "node_modules",
+      "computedHash": "4664395a2d3172895c3778782a43cdfe81773b4f9b7765cd5fca297766479f7f"
+    },
+    "column-sizing": {
+      "source": "@tanstack/table-core",
+      "sourceType": "node_modules",
+      "computedHash": "25e64497ad43eaf7238c5575c1addfbb8e9024d31723c7b6e043dc4fd80b959f"
+    },
+    "column-visibility": {
+      "source": "@tanstack/table-core",
+      "sourceType": "node_modules",
+      "computedHash": "5cfb9382eaf9968092b950bb1bc874540732e5d992a2533df9145254e2c4440b"
+    },
+    "compose-marks-and-views": {
+      "source": "@tanstack/charts",
+      "sourceType": "node_modules",
+      "computedHash": "c5a074d4ec37368e312f758a01b70c318caae00ee780a842166f2a0ded0c7765"
+    },
+    "configure-scales-guides-color": {
+      "source": "@tanstack/charts",
+      "sourceType": "node_modules",
+      "computedHash": "91b54b1982f5543c9e42e666eb2f618440134bf2f7ee78363e998b9c8b2aff62"
+    },
+    "coordinate-charts-with-tanstack": {
+      "source": "@tanstack/charts",
+      "sourceType": "node_modules",
+      "computedHash": "44f12c500ad21b626d797bb08426fc4dee8228f43b3cfd60c97ad816a38e3e4c"
+    },
+    "core": {
+      "source": "@tanstack/table-core",
+      "sourceType": "node_modules",
+      "computedHash": "6925ee43dac9c07146dcd8bcc418004f44a59e3e3921549b6ab110f9dd43e308"
+    },
+    "create-table-hook": {
+      "source": "@tanstack/react-table",
+      "sourceType": "node_modules",
+      "computedHash": "c04ddc45eb397315e44fa3d59733e0c515183e5ff49e7bc2584374cec22e8365"
+    },
+    "custom-features": {
+      "source": "@tanstack/table-core",
+      "sourceType": "node_modules",
+      "computedHash": "a508b60044309f9e94ecffd3c2e30dcd071eddb79639709c183708bc80f8b13f"
+    },
+    "debug-and-verify-charts": {
+      "source": "@tanstack/charts",
+      "sourceType": "node_modules",
+      "computedHash": "b07c3cc47552df6cd75f99277accf750fcccc056b99fa70f33d8d6bd1898d6d8"
+    },
+    "design-a-chart": {
+      "source": "@tanstack/charts",
+      "sourceType": "node_modules",
+      "computedHash": "73a4cc53a159d58fd9a414c3d308c0bfc72037a8291bf6fbbad40e6da9616fb9"
+    },
+    "design-responsive-charts": {
+      "source": "@tanstack/charts",
+      "sourceType": "node_modules",
+      "computedHash": "c187a130ecd4d27f73ff082f395d03cec8a4717dc4a84450a1763ac3cedb6e34"
+    },
+    "expanding": {
+      "source": "@tanstack/table-core",
+      "sourceType": "node_modules",
+      "computedHash": "14154bf04c49957e08971956756667114ef19ce7eb0572b93e1f31201701ac27"
+    },
+    "extend-tanstack-charts": {
+      "source": "@tanstack/charts",
+      "sourceType": "node_modules",
+      "computedHash": "3fe7956a0f0009c717f097aaf9b3eba74b6feba0090dca402a8c08f86501e1fe"
+    },
+    "getting-started": {
+      "source": "@tanstack/react-table",
+      "sourceType": "node_modules",
+      "computedHash": "aac56ad48e6acd8dcb113339984e3410555e0f06c2b81d1c2e66a31abf05462d"
+    },
+    "global-filtering": {
+      "source": "@tanstack/table-core",
+      "sourceType": "node_modules",
+      "computedHash": "779dbb4a565cb4bcb13e19f83949405fd700bf7cab01221fa06e132cb589f075"
+    },
+    "grouping": {
+      "source": "@tanstack/table-core",
+      "sourceType": "node_modules",
+      "computedHash": "a9877e40e30b45a82b2f0206a506fc54cda812b900db644230652196464707b8"
+    },
+    "impeccable": {
+      "source": "pbakaus/impeccable",
+      "sourceType": "github",
+      "skillPath": ".agents/skills/impeccable/SKILL.md",
+      "computedHash": "6e974c00da696baec13343bf2c17e1fcbbfdb83d0af33bfe29b87853c0c62f6b"
+    },
+    "migrate-to-tanstack-charts": {
+      "source": "@tanstack/charts",
+      "sourceType": "node_modules",
+      "computedHash": "6859bf6776e95e5c536a25d5a46d4713c760703457814d5cc92f4ce951f8b531"
+    },
+    "migrate-v8-to-v9": {
+      "source": "@tanstack/table-core",
+      "sourceType": "node_modules",
+      "computedHash": "f06961cecc5cc890cc7d264e11f7c69f3bd4bb1802c9aa8350921b5606675aca"
+    },
+    "modern-web-guidance": {
+      "source": "googlechrome/modern-web-guidance",
+      "sourceType": "github",
+      "skillPath": "skills/modern-web-guidance/SKILL.md",
+      "computedHash": "6e8841de6cb76fedb94c71008924c3bdc46db0c54111049329e789e0e478d282"
+    },
+    "pagination": {
+      "source": "@tanstack/table-core",
+      "sourceType": "node_modules",
+      "computedHash": "bd2c631904bbd57c17e85bff48bdf43debf894943260ebd36a21dad0b9bcc221"
+    },
+    "prepare-chart-data": {
+      "source": "@tanstack/charts",
+      "sourceType": "node_modules",
+      "computedHash": "0bc508ec3c528093420ecfca001aedc5ab3ac13d16d1197d7769944dc4e47f92"
+    },
+    "row-pinning": {
+      "source": "@tanstack/table-core",
+      "sourceType": "node_modules",
+      "computedHash": "9194e989971ab05da9c9941a3fc97f615f748223ee5a79c6c6bbb71a6bbf898b"
+    },
+    "row-selection": {
+      "source": "@tanstack/table-core",
+      "sourceType": "node_modules",
+      "computedHash": "854f5ea08581dc2267f8d942ea3c6d1258691f2e038e1598fd8b3e656e77d613"
+    },
+    "ship-accessible-charts": {
+      "source": "@tanstack/charts",
+      "sourceType": "node_modules",
+      "computedHash": "36b12bcb840284d36141034118aba3958e2f5b68d6372f8c52216fd8ab7eba69"
+    },
+    "sorting": {
+      "source": "@tanstack/table-core",
+      "sourceType": "node_modules",
+      "computedHash": "181b9ecdbe48331eb9e11e60afcf534940c3955f87d6f270e2d500a034444ebb"
+    },
+    "table-features": {
+      "source": "@tanstack/table-core",
+      "sourceType": "node_modules",
+      "computedHash": "42b8decd8cde8511efcb2e654ae57eb72023209732c7a1cb8f461869f9d5c607"
+    },
+    "table-state": {
+      "source": "@tanstack/react-table",
+      "sourceType": "node_modules",
+      "computedHash": "39dd57578d4c52a81185bce2dc8ce11cd7cc6b31449d7b84a32c0a0ce03725ae"
+    },
+    "typescript": {
+      "source": "@tanstack/table-core",
+      "sourceType": "node_modules",
+      "computedHash": "f008655f36d39607f0618c823067a267dadf0803a7dd87d65ae988094953d80c"
+    },
+    "update-and-animate-charts": {
+      "source": "@tanstack/charts",
+      "sourceType": "node_modules",
+      "computedHash": "8ca1f4de5a4ade4eeb3859fc56e3652c7e8f0b0d801bad02533aab38e2aafab9"
+    },
+    "vercel-composition-patterns": {
+      "source": "vercel-labs/agent-skills",
+      "sourceType": "github",
+      "skillPath": "skills/composition-patterns/SKILL.md",
+      "computedHash": "575757e3e25761c8c562d6e395d29f0b76c98b1273c0bd72d88e6ab1bc9c7d42"
+    },
+    "vercel-react-best-practices": {
+      "source": "vercel-labs/agent-skills",
+      "sourceType": "github",
+      "skillPath": "skills/react-best-practices/SKILL.md",
+      "computedHash": "ca7b0c0c6e5f2750043f7f0cd72d16ac4e2abc48f9b5500d047a4b77a2506212"
+    },
+    "web-design-guidelines": {
+      "source": "vercel-labs/agent-skills",
+      "sourceType": "github",
+      "skillPath": "skills/web-design-guidelines/SKILL.md",
+      "computedHash": "f3bc47f890f42a44db1007ab390709ec368e4b8c089baee6b0007182236ac474"
+    },
     "web-perf": {
       "source": "cloudflare/skills",
       "sourceType": "github",
       "skillPath": "skills/web-perf/SKILL.md",
       "computedHash": "7ae53856c320574f7440f50aef7892f96837eec9fd49d329d049d432fb4b299a"
+    },
+    "with-tanstack-query": {
+      "source": "@tanstack/react-table",
+      "sourceType": "node_modules",
+      "computedHash": "fb54385f96d37469dba0ac970e49b322857b19847e54eedb04d0d640f87ebfe7"
+    },
+    "with-tanstack-virtual": {
+      "source": "@tanstack/react-table",
+      "sourceType": "node_modules",
+      "computedHash": "0a574c7404f69cd3f0715a55801a791fa85e7342aa0125d53af9adc08a8fd656"
     },
     "workers-best-practices": {
       "source": "cloudflare/skills",
