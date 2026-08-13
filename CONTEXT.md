@@ -1,11 +1,11 @@
 # Project Mandala
 
-Project Mandala adalah inisiatif independen yang tidak didukung PP KAMMI untuk menghimpun dan menyajikan preferensi komunitas KAMMI menjelang Muktamar XIV KAMMI. Hasilnya anonim, non-binding, dan berada di luar mekanisme resmi organisasi.
+Project Mandala adalah inisiatif independen yang tidak didukung PP KAMMI untuk menghimpun dan menyajikan preferensi komunitas KAMMI menjelang Muktamar XIV KAMMI. Hasil publik hanya berupa agregat yang dikendalikan untuk mencegah pengungkapan Respons individual; hasilnya non-binding dan berada di luar mekanisme resmi organisasi.
 
 ## Language
 
 **Survei Preferensi**:
-Polling anonim untuk membaca preferensi terhadap calon Ketua Umum PP KAMMI dan konteks dasar partisipannya. Survei ini bukan pemilihan resmi dan tidak menetapkan pemenang.
+Polling yang menghimpun Respons dan menerbitkan hanya agregat terkendali untuk membaca preferensi terhadap calon Ketua Umum PP KAMMI dan konteks dasar partisipannya. Survei ini bukan pemilihan resmi dan tidak menetapkan pemenang.
 _Avoid_: Pemilu, voting resmi, mekanisme organisasi
 
 **Partisipan**:
@@ -57,8 +57,24 @@ Satu tautan bersama yang membuka percakapan dengan nomor WhatsApp Project Mandal
 _Avoid_: Tautan verifikasi, undangan pribadi
 
 **Standing**:
-Ringkasan berjalan atas jumlah partisipasi dan hasil Survei Preferensi selama survei masih dibuka. Standing bukan hasil pemilihan resmi.
+Ringkasan berjalan yang dikendalikan terhadap pengungkapan atas jumlah Respons dan distribusi preferensi selama Survei Preferensi masih dibuka. Standing dapat berubah karena submit, edit, penghapusan, atau Pemetaan Kandidat dan bukan hasil pemilihan resmi.
 _Avoid_: Hasil pemilu, pemenang resmi
+
+**Kontrol Pengungkapan**:
+Aturan yang membatasi presisi atau menahan agregat publik ketika suatu hasil dapat mengekspos Respons individual. Lolos Kontrol Pengungkapan tidak berarti suatu kelompok cukup besar untuk kesimpulan yang andal.
+_Avoid_: Jaminan anonimitas, validitas statistik
+
+**Finalisasi Hasil**:
+Keadaan setelah Survei Preferensi ditutup ketika Standing terakhir masih diperiksa terhadap moderasi dan Kontrol Pengungkapan sebelum menjadi Hasil Akhir Survei Preferensi.
+_Avoid_: Hasil final, penghitungan resmi
+
+**Hasil Akhir Survei Preferensi**:
+Agregat final yang diterbitkan setelah Finalisasi Hasil selesai. Koreksi privasi dapat mengurangi agregat dan menghasilkan revisi bertanggal tanpa menjadikannya hasil pemilihan resmi.
+_Avoid_: Pemenang, hasil resmi Muktamar
+
+**Tema Alasan dan Harapan**:
+Kategori agregat yang merangkum pola dalam Alasan dan Harapan setelah Survei Preferensi ditutup. Tema dapat dibantu AI hanya sesuai kebijakan AI, tetapi selalu ditinjau Project Maintainer dan tidak memuat kutipan atau teks mentah.
+_Avoid_: Kesimpulan individual, kutipan partisipan, ringkasan otomatis tanpa tinjauan
 
 **Respons**:
 Pilihan final dan Alasan dan Harapan opsional milik satu partisipan, unik per nomor WhatsApp namun tidak dianggap sebagai bukti satu kader unik. Respons dapat diperbarui sampai Survei Preferensi ditutup.
