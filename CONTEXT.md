@@ -29,12 +29,20 @@ Kedudukan kepengurusan yang sedang dijalankan dan dinyatakan sendiri oleh partis
 _Avoid_: Riwayat kepengurusan, jabatan terverifikasi
 
 **Kandidat**:
-Calon Ketua Umum PP KAMMI yang tersedia sebagai pilihan dalam Survei Preferensi. Daftar awal dimasukkan sebelum survei dibuka; nama baru dapat ditambahkan setelah melalui moderasi Respons.
-_Avoid_: Pemenang
+Orang yang tersedia sebagai pilihan dalam Survei Preferensi. Daftar awal dimasukkan sebelum survei dibuka; Project Maintainer dapat menjadikan Nama Lain sebagai Kandidat melalui Keputusan Moderasi. Status Kandidat bukan verifikasi kelayakan, dukungan, status kader, atau pencalonan resmi.
+_Avoid_: Pemenang, kandidat terverifikasi
 
 **Nama Lain**:
-Nama yang ditulis sendiri oleh partisipan ketika pilihannya tidak tersedia dalam daftar Kandidat. Nama tersebut tersimpan sebagai Respons, lalu dapat menjadi pilihan bagi partisipan berikutnya setelah moderasi.
-_Avoid_: Kandidat terverifikasi
+Nama yang ditulis sendiri oleh partisipan ketika pilihannya tidak tersedia dalam daftar Kandidat. Teks asli tetap menjadi bagian Respons dan dapat dipetakan ke Kandidat untuk agregasi tanpa mengubah pilihan yang disubmit.
+_Avoid_: Kandidat terverifikasi, Kandidat otomatis
+
+**Pemetaan Kandidat**:
+Relasi revisabel yang mengelompokkan Nama Lain ke satu Kandidat untuk agregasi. Pemetaan Kandidat tidak mengganti teks asli atau pilihan yang disubmit dalam Respons.
+_Avoid_: Koreksi Respons, perubahan pilihan
+
+**Keputusan Moderasi**:
+Keputusan Project Maintainer untuk menerima, memetakan, menyembunyikan, atau meninjau kembali Nama Lain. Keputusan ini mengatur pengelompokan dan keterlihatan, bukan mengubah isi Respons partisipan.
+_Avoid_: Koreksi Respons, verifikasi kandidat
 
 **Belum Menentukan**:
 Pilihan Respons bagi partisipan yang telah menyelesaikan Survei Preferensi tetapi belum memilih Kandidat atau Nama Lain. Pilihan ini dihitung sebagai partisipasi, tetapi dipisahkan dari distribusi preferensi Kandidat.
@@ -77,7 +85,7 @@ Pengujian perjalanan dan operasi Survei Preferensi sebelum peluncuran live. Resp
 _Avoid_: Gelombang awal survei live, data live
 
 **Project Maintainer**:
-Operator teknis tunggal yang menjalankan Survei Preferensi tanpa kewenangan mengubah isi Respons atau menilai keabsahan status kader partisipan.
+Operator teknis tunggal yang menjalankan Survei Preferensi dan menjadi satu-satunya otoritas Keputusan Moderasi, tanpa kewenangan mengubah isi Respons atau menilai keabsahan status kader partisipan.
 _Avoid_: Komite survei, validator kader
 
 **Akses Edit**:
