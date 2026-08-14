@@ -56,8 +56,8 @@ _Avoid_: Testimoni publik, kutipan berizin, identitas partisipan
 Satu tautan bersama yang membuka percakapan dengan nomor WhatsApp Project Mandala. Tautan ini membatasi jalur penyebaran, tetapi tidak membuktikan status partisipan.
 _Avoid_: Tautan verifikasi, undangan pribadi
 
-**Standing**:
-Ringkasan berjalan yang dikendalikan terhadap pengungkapan atas jumlah Respons dan distribusi preferensi selama Survei Preferensi masih dibuka. Standing dapat berubah karena submit, edit, penghapusan, atau Pemetaan Kandidat dan bukan hasil pemilihan resmi.
+**Hasil Sementara**:
+Ringkasan berjalan yang dikendalikan terhadap pengungkapan atas jumlah Respons dan distribusi preferensi selama Survei Preferensi masih dibuka. Hasil Sementara dapat berubah karena submit, edit, penghapusan, atau Pemetaan Kandidat dan bukan hasil pemilihan resmi.
 _Avoid_: Hasil pemilu, pemenang resmi
 
 **Kontrol Pengungkapan**:
@@ -65,7 +65,7 @@ Aturan yang membatasi presisi atau menahan agregat publik ketika suatu hasil dap
 _Avoid_: Jaminan anonimitas, validitas statistik
 
 **Finalisasi Hasil**:
-Keadaan setelah Survei Preferensi ditutup ketika Standing terakhir masih diperiksa terhadap moderasi dan Kontrol Pengungkapan sebelum menjadi Hasil Akhir Survei Preferensi.
+Keadaan setelah Survei Preferensi ditutup ketika Hasil Sementara terakhir masih diperiksa terhadap moderasi dan Kontrol Pengungkapan sebelum menjadi Hasil Akhir Survei Preferensi.
 _Avoid_: Hasil final, penghitungan resmi
 
 **Hasil Akhir Survei Preferensi**:
@@ -109,8 +109,28 @@ Kemampuan nomor WhatsApp yang sama untuk meminta dan menyimpan perubahan Respons
 _Avoid_: Token publik, pemulihan dari nomor lain
 
 **Langganan Update**:
-Status penerimaan update mingguan Project Mandala melalui WhatsApp. Persetujuan awal menyebut langganan ini secara eksplisit; setiap Partisipan otomatis terdaftar setelah submit dan dapat berhenti melalui pengaturan jawaban atau tindakan berhenti yang disertakan pada setiap update.
+Status penerimaan Update Mingguan Project Mandala melalui WhatsApp. Sebelum persetujuan awal, Partisipan diberi tahu secara ringkas bahwa submit pertama mengaktifkan Update Mingguan dan Pesan Hasil Akhir serta bahwa langganan dapat dihentikan kapan saja; berhenti berlaku segera tanpa menghapus Respons, sedangkan edit Respons tidak mengubah status ini dan pengaktifan kembali memerlukan tindakan eksplisit Partisipan.
 _Avoid_: Langganan tanpa disclosure, pesan wajib tanpa opt-out
+
+**Update Mingguan**:
+Pesan ringkas setiap Sabtu pukul 16.30 WIB bagi Partisipan dengan Langganan Update aktif, berisi status Hasil Sementara, total Respons global, waktu pembaruan, tautan dashboard, batas interpretasi, dan tindakan berhenti. Update Mingguan berhenti ketika Survei Preferensi ditutup dan tidak memuat distribusi Kandidat.
+_Avoid_: Salinan dashboard, peringkat mingguan, hasil final
+
+**Pesan Hasil Akhir**:
+Pesan satu kali kepada Partisipan dengan Langganan Update aktif yang dikirim pukul 16.30 WIB pada H+1 setelah Survei Preferensi ditutup, terpisah dari jadwal Update Mingguan, untuk menyampaikan Ringkasan Tiga Teratas, batas interpretasi, dan tautan ke Hasil Akhir Survei Preferensi tanpa ringkasan naratif lain. Pesan ini hanya dikirim setelah moderasi dan Kontrol Pengungkapan selesai; keterlambatan gerbang tersebut diberitahukan tanpa menyebut hasil belum aman sebagai final.
+_Avoid_: Update Mingguan, hasil sementara, pesan finalisasi
+
+**Ringkasan Tiga Teratas**:
+Bagian Pesan Hasil Akhir yang memuat tiga preferensi Kandidat tertinggi beserta nilai terkendalinya tanpa menyebut pemenang; semua Kandidat yang seri pada batas ketiga ikut ditampilkan. Ringkasan ini tidak dikirim ketika suppression membuat urutan tidak aman atau menyesatkan dan diganti dengan ringkasan tanpa peringkat serta tautan dashboard.
+_Avoid_: Pemenang, peringkat resmi, Top 3 tanpa Kontrol Pengungkapan
+
+**Pemberitahuan Finalisasi**:
+Pesan pukul 16.30 WIB pada H+1 kepada Partisipan dengan Langganan Update aktif ketika Hasil Akhir Survei Preferensi belum lolos moderasi dan Kontrol Pengungkapan. Pesan ini hanya menyatakan bahwa Finalisasi Hasil masih berlangsung dan tidak memuat angka atau kesimpulan.
+_Avoid_: Pesan Hasil Akhir, hasil tertunda, hasil final
+
+**Pesan Koreksi**:
+Pesan satu kali kepada penerima Pesan Hasil Akhir yang masih memiliki Langganan Update aktif ketika koreksi privasi mengubah nama, urutan, jumlah, persentase, atau fakta lain yang sebelumnya dikirim. Pesan ini menyatakan fakta yang direvisi dan menautkan Hasil Akhir Survei Preferensi bertanggal, tetapi tidak dikirim setelah pengait nomor dihapus.
+_Avoid_: Update Mingguan, koreksi tanpa perubahan fakta terkirim, pesan setelah penghapusan pengait
 
 **Kontak Privasi**:
 Kanal publik di luar nomor WhatsApp peserta untuk keluhan privasi serta permintaan koreksi atau penghapusan dari orang yang diajukan sebagai Nama Lain. Akses, koreksi, atau penghapusan data Partisipan tetap diautentikasi melalui nomor WhatsApp yang sama selama pengaitnya tersedia.
