@@ -1,9 +1,19 @@
 // PROTOTYPE — three live-dashboard information designs, switchable via ?variant=.
-import { useEffect, useState, type CSSProperties } from "react";
+import { useEffect, useMemo, useRef, useState, type ReactNode } from "react";
+import { barX, defineChart } from "@tanstack/charts";
+import { Chart } from "@tanstack/charts/react";
+import { tooltip } from "@tanstack/charts/tooltip";
+import { createColumnHelper, tableFeatures, useTable } from "@tanstack/react-table";
+import { scaleBand, scaleLinear } from "d3-scale";
+import ReactMap, { AttributionControl, Layer, Marker, NavigationControl, Popup, Source, type FillLayerSpecification, type LineLayerSpecification, type MapLayerMouseEvent } from "react-map-gl/maplibre";
+import type { FeatureCollection, Geometry } from "geojson";
+import maplibreWorkerUrl from "maplibre-gl/dist/maplibre-gl-worker.mjs?worker&url";
+import "maplibre-gl/dist/maplibre-gl.css";
 import "./App.css";
 
 type VariantKey = "A" | "B" | "C";
 type SceneKey = "live" | "filtered" | "withheld" | "delayed" | "finalizing" | "final";
+type ViewKey = "standing" | "pw" | "pd" | "profile" | "themes";
 
 const variants: { key: VariantKey; name: string }[] = [
 	{ key: "A", name: "Ringkasan berlapis" },
@@ -71,6 +81,44 @@ const pdRows = pdSeeds.map(([name, participants], index) => {
 	return { name, participants, topThree };
 });
 
+type PDRow = (typeof pdRows)[number];
+const pdTableFeatures = tableFeatures({});
+const pdColumnHelper = createColumnHelper<typeof pdTableFeatures, PDRow>();
+
+function PDNameCell({ row, rowIndex }: { row: PDRow; rowIndex: number }) {
+	return (
+		<span className="pd-tooltip">
+			<button aria-describedby={`pd-top-${rowIndex}`}>{row.name}</button>
+			<span className="pd-tooltip__card" role="tooltip" id={`pd-top-${rowIndex}`}>
+				<b>Top 3</b>
+				{row.topThree.map((candidate, rank) => (
+					<span key={candidate.name}><i>{rank + 1}</i>{candidate.name}<strong>{candidate.percent}%</strong></span>
+				))}
+			</span>
+		</span>
+	);
+}
+
+const pdColumns = pdColumnHelper.columns([
+	pdColumnHelper.accessor("name", {
+		header: "Nama PD",
+		cell: (info) => <PDNameCell row={info.row.original} rowIndex={info.row.getDisplayIndex()} />,
+	}),
+	pdColumnHelper.accessor("participants", {
+		header: "Jumlah partisipan",
+		cell: (info) => info.getValue().toLocaleString("id-ID"),
+	}),
+	pdColumnHelper.accessor((row) => row.topThree[0].name, {
+		id: "topChoice",
+		header: "Pilihan teratas",
+	}),
+	pdColumnHelper.accessor((row) => row.topThree[0].percent, {
+		id: "percent",
+		header: "Persentase",
+		cell: (info) => <b>{info.getValue()}%</b>,
+	}),
+]);
+
 const profileCohorts = [
 	{ group: "Jenjang", name: "AB1" },
 	{ group: "Jenjang", name: "AB2" },
@@ -83,7 +131,94 @@ const profileCohorts = [
 	{ group: "Peran", name: "Anggota" },
 ];
 
-const filters = ["PW", "PD", "Jenjang", "Tingkat pengurus", "Peran"];
+const filterDefinitions = [
+	{ key: "pw", label: "PW", options: ["Jawa Barat", "DKI Jakarta", "Jawa Timur"] },
+	{ key: "pd", label: "PD", options: ["Bandung", "Jakarta Selatan", "Surabaya"] },
+	{ key: "level", label: "Jenjang", options: ["AB1", "AB2", "AB3"] },
+	{ key: "board", label: "Tingkat pengurus", options: ["Pengurus PW", "Pengurus PD", "Pengurus Komisariat"] },
+	{ key: "role", label: "Peran", options: ["Ketua", "Pengurus", "Anggota"] },
+] as const;
+
+type FilterKey = (typeof filterDefinitions)[number]["key"];
+type FilterValues = Record<FilterKey, string>;
+
+const emptyFilters: FilterValues = { pw: "", pd: "", level: "", board: "", role: "" };
+const filterQueryKeys: Record<FilterKey, string> = { pw: "fpw", pd: "fpd", level: "flevel", board: "fboard", role: "frole" };
+
+function currentSearchParams() {
+	return new URLSearchParams(window.location.search);
+}
+
+function updateSearchParams(updates: Record<string, string | null>, push = false) {
+	const url = new URL(window.location.href);
+	for (const [key, value] of Object.entries(updates)) {
+		if (value) url.searchParams.set(key, value);
+		else url.searchParams.delete(key);
+	}
+	window.history[push ? "pushState" : "replaceState"]({}, "", url);
+}
+
+function filtersFromUrl(scene: SceneKey): FilterValues {
+	const params = currentSearchParams();
+	const values = { ...emptyFilters };
+	for (const definition of filterDefinitions) {
+		const requested = params.get(filterQueryKeys[definition.key]);
+		if (requested && definition.options.some((option) => option === requested)) values[definition.key] = requested;
+	}
+	if (!Object.values(values).some(Boolean) && (scene === "filtered" || scene === "withheld")) {
+		values.pw = "Jawa Barat";
+		values.pd = "Bandung";
+	}
+	return values;
+}
+
+function filterLabels(values: FilterValues) {
+	return filterDefinitions.flatMap((definition) => values[definition.key] ? [`${definition.label} ${values[definition.key]}`] : []);
+}
+
+function stableHash(value: string) {
+	let hash = 0;
+	for (const character of value) hash = (hash * 31 + character.charCodeAt(0)) >>> 0;
+	return hash;
+}
+
+function standingForFilters(values: FilterValues) {
+	const labels = filterLabels(values);
+	if (!labels.length) return { rows: rankedResults, basis: totalResponses, filtered: false };
+
+	const basis = 215;
+	const signature = labels.join("|");
+	const weighted = rankedResults.map((result) => ({
+		...result,
+		weight: result.count * (0.82 + (stableHash(`${signature}:${result.name}`) % 37) / 100),
+	}));
+	const totalWeight = weighted.reduce((total, result) => total + result.weight, 0);
+	const rows = weighted.map(({ weight, ...result }) => {
+		const count = Math.round((weight / totalWeight * basis) / 5) * 5;
+		return { ...result, count, percent: `${Math.round(count / basis * 100)}%`, value: count };
+	});
+	const candidates = rows.filter((row) => row.kind === "candidate").sort((first, second) => second.count - first.count);
+	return { rows: [...candidates, ...rows.filter((row) => row.kind !== "candidate")], basis, filtered: true };
+}
+
+function ModalDialog({ labelledBy, className = "", onClose, children }: { labelledBy: string; className?: string; onClose: () => void; children: ReactNode }) {
+	const dialogRef = useRef<HTMLDialogElement>(null);
+
+	useEffect(() => {
+		const dialog = dialogRef.current;
+		if (!dialog) return;
+		if (!dialog.open) dialog.showModal();
+		return () => {
+			if (dialog.open) dialog.close();
+		};
+	}, []);
+
+	return (
+		<dialog ref={dialogRef} className={`pw-dialog ${className}`} aria-labelledby={labelledBy} onCancel={(event) => { event.preventDefault(); onClose(); }}>
+			{children}
+		</dialog>
+	);
+}
 
 function sceneFromUrl(): SceneKey {
 	const value = new URLSearchParams(window.location.search).get("state");
@@ -92,7 +227,7 @@ function sceneFromUrl(): SceneKey {
 
 function variantFromUrl(): VariantKey {
 	const value = new URLSearchParams(window.location.search).get("variant")?.toUpperCase();
-	return variants.some((variant) => variant.key === value) ? (value as VariantKey) : "A";
+	return variants.some((variant) => variant.key === value) ? (value as VariantKey) : "B";
 }
 
 function usePrototypeUrl() {
@@ -102,6 +237,7 @@ function usePrototypeUrl() {
 	function update(key: "variant" | "state", value: string) {
 		const url = new URL(window.location.href);
 		url.searchParams.set(key, value);
+		if (key === "state" && value !== "final" && url.searchParams.get("view") === "themes") url.searchParams.set("view", "standing");
 		window.history.replaceState({}, "", url);
 		if (key === "variant") setVariantState(value as VariantKey);
 		else setSceneState(value as SceneKey);
@@ -133,7 +269,7 @@ function statusFor(scene: SceneKey) {
 function Status({ scene, compact = false }: { scene: SceneKey; compact?: boolean }) {
 	const status = statusFor(scene);
 	return (
-		<div className={`status status--${status.tone} ${compact ? "status--compact" : ""}`}>
+		<div className={`status status--${status.tone} ${compact ? "status--compact" : ""}`} role="status" aria-live="polite">
 			<span className="status__dot" aria-hidden="true" />
 			<div><strong>{status.title}</strong><span>{status.note}</span></div>
 		</div>
@@ -148,14 +284,27 @@ function RefreshNote({ scene }: { scene: SceneKey }) {
 	);
 }
 
-function FilterControls({ scene, compact = false }: { scene: SceneKey; compact?: boolean }) {
-	const selected = scene === "filtered" || scene === "withheld";
+function FilterControls({ scene, compact = false, values, onChange, onReset }: { scene: SceneKey; compact?: boolean; values?: FilterValues; onChange?: (key: FilterKey, value: string) => void; onReset?: () => void }) {
+	const [localValues, setLocalValues] = useState<FilterValues>(() => filtersFromUrl(scene));
+	const selectedValues = values ?? localValues;
+	const hasSelection = Object.values(selectedValues).some(Boolean);
+
+	const changeFilter = (key: FilterKey, value: string) => {
+		if (onChange) onChange(key, value);
+		else setLocalValues((current) => ({ ...current, [key]: value }));
+	};
+
+	const resetFilters = () => {
+		if (onReset) onReset();
+		else setLocalValues({ ...emptyFilters });
+	};
+
 	return (
 		<section className={`filters ${compact ? "filters--compact" : ""}`} aria-label="Filter Profil Partisipan">
-			<div className="section-heading"><div><span className="eyebrow">Eksplorasi kelompok</span><h2>Filter Profil Partisipan</h2></div><button className="text-button">Reset</button></div>
+			<div className="section-heading"><div><span className="eyebrow">Eksplorasi kelompok</span><h2>Filter Profil Partisipan</h2></div><button type="button" className="text-button" disabled={!hasSelection} onClick={resetFilters}>Reset</button></div>
 			<div className="filter-grid">
-				{filters.map((filter, index) => (
-					<label key={filter}><span>{filter}</span><select defaultValue={selected && index < 2 ? (index === 0 ? "Jawa Barat" : "Bandung") : "Semua"}><option>Semua</option>{index === 0 && <option>Jawa Barat</option>}{index === 1 && <option>Bandung</option>}</select></label>
+				{filterDefinitions.map((definition) => (
+					<label key={definition.key} htmlFor={`filter-${definition.key}`}><span>{definition.label}</span><select id={`filter-${definition.key}`} value={selectedValues[definition.key]} onChange={(event) => changeFilter(definition.key, event.target.value)}><option value="">Semua</option>{definition.options.map((option) => <option key={option}>{option}</option>)}</select></label>
 				))}
 			</div>
 			<p className="microcopy">Satu kelompok ditampilkan sekaligus. Kombinasi kecil dapat ditahan sepenuhnya.</p>
@@ -163,19 +312,20 @@ function FilterControls({ scene, compact = false }: { scene: SceneKey; compact?:
 	);
 }
 
-function ActiveCohort({ scene }: { scene: SceneKey }) {
-	if (scene !== "filtered" && scene !== "withheld") return <span className="cohort">Semua partisipan</span>;
-	return <div className="active-filters"><span>PW Jawa Barat</span><span>PD Bandung</span></div>;
+function ActiveCohort({ scene, values }: { scene: SceneKey; values?: FilterValues }) {
+	const labels = values ? filterLabels(values) : (scene === "filtered" || scene === "withheld" ? ["PW Jawa Barat", "PD Bandung"] : []);
+	if (!labels.length) return <span className="cohort">Semua partisipan</span>;
+	return <div className="active-filters">{labels.map((label) => <span key={label}>{label}</span>)}</div>;
 }
 
-function Unavailable() {
+function Unavailable({ onClear }: { onClear?: () => void }) {
 	return (
 		<div className="unavailable" role="status">
 			<div className="unavailable__lock" aria-hidden="true">×</div>
 			<span className="eyebrow">Seluruh rincian ditahan</span>
 			<h3>Data belum cukup</h3>
 			<p>Kelompok ini belum mencapai minimum 20 Respons. Tidak ada total kelompok, distribusi, persentase, atau tren yang ditampilkan.</p>
-			<button className="secondary-button">Hapus sebagian filter</button>
+			{onClear && <button type="button" className="secondary-button" onClick={onClear}>Hapus filter</button>}
 		</div>
 	);
 }
@@ -208,38 +358,90 @@ function Total({ quiet = false }: { quiet?: boolean }) {
 	);
 }
 
-function StandingPlot({ scene }: { scene: SceneKey }) {
-	const [showAll, setShowAll] = useState(false);
-	const requestedCandidate = new URLSearchParams(window.location.search).get("candidate");
-	const [selectedCandidate, setSelectedCandidate] = useState(() => candidateNames.includes(requestedCandidate || "") ? requestedCandidate : null);
+function StandingPlot({ scene, filters = emptyFilters, onClearFilters }: { scene: SceneKey; filters?: FilterValues; onClearFilters?: () => void }) {
+	const [showAll, setShowAllState] = useState(() => currentSearchParams().get("all") === "1");
+	const requestedCandidate = currentSearchParams().get("candidate");
+	const [selectedCandidate, setSelectedCandidateState] = useState(() => candidateNames.includes(requestedCandidate || "") ? requestedCandidate : null);
+	const standing = useMemo(() => standingForFilters(filters), [filters]);
+	const plottedRows = useMemo(() => showAll ? standing.rows : [...standing.rows.slice(0, 10), ...standing.rows.slice(-2)], [showAll, standing.rows]);
+	const maxCount = Math.max(...plottedRows.map((row) => row.count), 20);
 
 	useEffect(() => {
-		if (!selectedCandidate) return;
-		const closeOnEscape = (event: KeyboardEvent) => { if (event.key === "Escape") setSelectedCandidate(null); };
-		window.addEventListener("keydown", closeOnEscape);
-		return () => window.removeEventListener("keydown", closeOnEscape);
-	}, [selectedCandidate]);
+		const sync = () => {
+			const params = currentSearchParams();
+			const candidate = params.get("candidate");
+			setShowAllState(params.get("all") === "1");
+			setSelectedCandidateState(candidate && candidateNames.includes(candidate) ? candidate : null);
+		};
+		window.addEventListener("popstate", sync);
+		return () => window.removeEventListener("popstate", sync);
+	}, []);
 
-	if (scene === "withheld") return <Unavailable />;
+	const setShowAll = (value: boolean) => {
+		updateSearchParams({ all: value ? "1" : null });
+		setShowAllState(value);
+	};
+
+	const setSelectedCandidate = (name: string | null) => {
+		updateSearchParams({ candidate: name }, Boolean(name));
+		setSelectedCandidateState(name);
+	};
+
+	const standingDefinition = useMemo(() => {
+		const responsiveStanding = defineChart(({ width }) => ({
+			marks: [barX(plottedRows, {
+				id: "standing-preferensi",
+				x: "count",
+				y: "name",
+				key: "name",
+				fill: (row) => row.kind === "other" ? "#8d668b" : row.kind === "undecided" ? "#6f8d49" : candidateColors[candidateNames.indexOf(row.name) % candidateColors.length],
+				inset: 3,
+				radius: 4,
+			})],
+			x: {
+				scale: () => scaleLinear().domain([0, maxCount * 1.04]).nice(),
+				label: "Jumlah Respons (dibulatkan ke 5 terdekat)",
+				format: (value: number) => value.toLocaleString("id-ID"),
+				grid: true,
+				ticks: width < 560 ? 3 : 6,
+			},
+			y: {
+				scale: () => scaleBand<string>().domain(plottedRows.map((row) => row.name)).paddingInner(0.16).paddingOuter(0.08),
+				},
+		}));
+		return defineChart(responsiveStanding, {
+			keyboard: true,
+			focus: "nearest-y",
+			tooltip: {
+				use: tooltip,
+				anchor: "point",
+				placement: ["right", "left", "top", "bottom"],
+				format: (point) => `${point.datum.name}\n${point.datum.percent} · ${point.datum.count.toLocaleString("id-ID")} Respons`,
+			},
+		});
+	}, [maxCount, plottedRows]);
+
+	if (scene === "withheld" && standing.filtered) return <Unavailable onClear={onClearFilters} />;
 	return (
 		<div className="standing-plot">
 			<div className="standing-plot__meta">
-				<ActiveCohort scene={scene} />
-				<span><b>{totalResponses.toLocaleString("id-ID")}</b> Respons global · tepat</span>
+				<ActiveCohort scene={scene} values={filters} />
+				<span><b>{standing.basis.toLocaleString("id-ID")}</b> Respons {standing.filtered ? "kelompok · dibulatkan" : "global · tepat"}</span>
 			</div>
-			{scene === "filtered" && <p className="controlled-base">Basis terkontrol: sekitar 215 Respons</p>}
-			<div className={`ranked-chart ${showAll ? "ranked-chart--all" : ""}`} role="list" aria-label="Distribusi preferensi diurutkan dari terbesar. Nama Lain dan Belum Menentukan selalu berada di akhir.">
-				{rankedResults.map((result, index) => (
-					<div className={`ranked-chart__row ranked-chart__row--${result.kind}`} key={result.name} role="listitem" style={{ "--bar-width": `${result.value}%`, "--bar-color": candidateColors[index % candidateColors.length] } as CSSProperties}>
-						<span className="ranked-chart__rank">{result.kind === "candidate" ? index + 1 : "—"}</span>
-						{result.kind === "candidate" ? <button className="candidate-link" aria-haspopup="dialog" onClick={() => setSelectedCandidate(result.name)}>{result.name}</button> : <strong>{result.name}</strong>}
-						<div className="ranked-chart__track" aria-hidden="true"><span /></div>
-						<span className="ranked-chart__value"><b>{result.percent}</b><small>{result.count.toLocaleString("id-ID")}</small></span>
-					</div>
-				))}
+			{standing.filtered && <p className="controlled-base">Basis terkontrol: sekitar {standing.basis.toLocaleString("id-ID")} Respons</p>}
+			<div className="standing-chart">
+				<Chart
+					definition={standingDefinition}
+					height={Math.max(500, plottedRows.length * 38)}
+					initialWidth={920}
+					ariaLabel={`Standing preferensi ${standing.filtered ? "kelompok terfilter" : "global"}, diurutkan dari jumlah Respons terbesar`}
+					ariaDescription="Diagram batang horizontal dengan jumlah Respons dibulatkan. Klik label atau batang kandidat untuk membuka detail. Gunakan tombol panah lalu Enter atau Spasi untuk membuka detail dengan keyboard."
+					onSelect={(point) => { if (point?.datum.kind === "candidate") setSelectedCandidate(point.datum.name); }}
+				/>
 			</div>
-			<button className="show-results" aria-expanded={showAll} onClick={() => setShowAll((value) => !value)}>{showAll ? "Tampilkan ringkas" : "Tampilkan semua 25 kandidat"}</button>
-			<p className="microcopy">Angka dibulatkan ke 5 terdekat; persentase dari nilai terkontrol. Komponen dapat tidak berjumlah tepat.</p>
+			<button className="show-results" aria-expanded={showAll} onClick={() => setShowAll(!showAll)}>{showAll ? "Tampilkan ringkas" : "Tampilkan semua 25 kandidat"}</button>
+			<p className="microcopy">Klik label atau batang kandidat untuk membuka detail. Angka dibulatkan ke 5 terdekat; persentase dari nilai terkontrol.</p>
+			<p className="standing-disclosure">Data simulasi. Partisipasi self-selected dan status kader tidak diverifikasi; satu nomor WhatsApp tidak membuktikan satu kader unik. Project Mandala independen, tidak resmi, dan non-binding.</p>
 			{selectedCandidate && <CandidateDialog name={selectedCandidate} onClose={() => setSelectedCandidate(null)} />}
 		</div>
 	);
@@ -250,8 +452,9 @@ function ThemeTable() {
 		<div className="theme-table-wrap">
 			<div className="theme-table-meta"><span>Hanya setelah penutupan</span><span>Ditinjau Project Maintainer · multi-label</span></div>
 			<table className="theme-table">
-				<thead><tr><th>Kesimpulan</th><th>Jumlah Pendapat Partisipan</th><th>Top Candidate</th><th>Featured Comment</th></tr></thead>
-				<tbody>{themeRows.map((row) => <tr key={row.conclusion}><th>{row.conclusion}</th><td>{row.count.toLocaleString("id-ID")}</td><td>{row.candidate}</td><td>{row.comment}<small>Bukan kutipan</small></td></tr>)}</tbody>
+				<caption className="sr-only">Kesimpulan Alasan dan Harapan setelah tinjauan Project Maintainer</caption>
+				<thead><tr><th scope="col">Kesimpulan</th><th scope="col">Jumlah Pendapat Partisipan</th><th scope="col">Top Candidate</th><th scope="col">Featured Comment</th></tr></thead>
+				<tbody>{themeRows.map((row) => <tr key={row.conclusion}><th scope="row">{row.conclusion}</th><td>{row.count.toLocaleString("id-ID")}</td><td>{row.candidate}</td><td>{row.comment}<small>Bukan kutipan</small></td></tr>)}</tbody>
 			</table>
 			<p className="microcopy">Jumlah memakai Respons dengan teks yang dapat dikodekan. Satu Respons dapat masuk lebih dari satu kesimpulan. Top Candidate menunjukkan pilihan terbanyak di antara Respons yang terkait dengan kesimpulan tersebut.</p>
 		</div>
@@ -259,24 +462,19 @@ function ThemeTable() {
 }
 
 function PDTable() {
+	const table = useTable({ features: pdTableFeatures, columns: pdColumns, data: pdRows, getRowId: (row) => row.name });
 	return (
 		<div className="pd-table-wrap">
 			<div className="pd-table-meta"><span>{pdRows.length} PD simulasi</span><span>{pdRows.reduce((total, row) => total + row.participants, 0).toLocaleString("id-ID")} partisipan</span></div>
 			<table className="pd-table">
-				<thead><tr><th>Nama PD</th><th>Jumlah partisipan</th><th>Pilihan teratas</th><th>Persentase</th></tr></thead>
-				<tbody>{pdRows.map((row, rowIndex) => (
-					<tr key={row.name}>
-						<th>
-							<span className="pd-tooltip">
-								<button aria-describedby={`pd-top-${rowIndex}`}>{row.name}</button>
-								<span className="pd-tooltip__card" role="tooltip" id={`pd-top-${rowIndex}`}>
-									<b>Top 3</b>
-									{row.topThree.map((candidate, rank) => <span key={candidate.name}><i>{rank + 1}</i>{candidate.name}<strong>{candidate.percent}%</strong></span>)}
-								</span>
-							</span>
-						</th>
-						<td>{row.participants.toLocaleString("id-ID")}</td><td>{row.topThree[0].name}</td><td><b>{row.topThree[0].percent}%</b></td>
-					</tr>
+				<caption className="sr-only">Ringkasan Standing per PD dengan data simulasi</caption>
+				<thead>{table.getHeaderGroups().map((group) => (
+					<tr key={group.id}>{group.headers.map((header) => <th scope="col" key={header.id}>{header.isPlaceholder ? null : <table.FlexRender header={header} />}</th>)}</tr>
+				))}</thead>
+				<tbody>{table.getRowModel().rows.map((row) => (
+					<tr key={row.id}>{row.getAllCells().map((cell) => cell.column.id === "name"
+						? <th scope="row" key={cell.id}><table.FlexRender cell={cell} /></th>
+						: <td key={cell.id}><table.FlexRender cell={cell} /></td>)}</tr>
 				))}</tbody>
 			</table>
 			<p className="microcopy">Arahkan kursor atau fokuskan nama PD untuk melihat Top 3. Data seluruhnya simulasi.</p>
@@ -304,7 +502,7 @@ function Limitations({ full = false }: { full?: boolean }) {
 	return (
 		<aside className={`limitations ${full ? "limitations--full" : ""}`}>
 			<span className="eyebrow">Baca dengan batasan ini</span>
-			<h2>Ini bukan hasil pemilihan</h2>
+			<h2>Batas interpretasi</h2>
 			<p>Partisipasi bersifat self-selected. Status kader tidak diverifikasi. Satu nomor WhatsApp bukan bukti satu kader unik.</p>
 			{full && <p>Project Mandala independen, tidak didukung PP KAMMI, non-binding, dan tidak mengukur seluruh kader KAMMI.</p>}
 			<a href="#metode">Baca metode lengkap <span aria-hidden="true">↗</span></a>
@@ -360,7 +558,9 @@ const pwSeeds: [string, string, number, number, number, number | null][] = [
 ];
 
 const pwRegions = pwSeeds.map(([name, code, x, y, participants, winner]) => ({
-	name: `PW ${name}`, code, x, y, participants,
+	name: `PW ${name}`, code, participants,
+	longitude: 95 + (x - 72) / (748 - 72) * 46,
+	latitude: 6 - (y - 55) / (222 - 55) * 14,
 	candidate: winner === null ? null : candidateNames[winner],
 	color: winner === null ? "#aeb7b0" : candidateColors[winner],
 }));
@@ -375,45 +575,228 @@ function topFiveForPW(winner: number | null, seed: number) {
 	}));
 }
 
+const indonesiaBounds: [number, number, number, number] = [94.4, -11.6, 141.6, 6.6];
+const provinceGeoJsonUrl = "https://raw.githubusercontent.com/denyherianto/indonesia-geojson-topojson-maps-with-38-provinces/main/GeoJSON/indonesia-38-provinces.geojson";
+
+type ProvinceSourceProperties = {
+	PROVINSI: string;
+	pwCode: string;
+	fillColor: string;
+	withheld: boolean;
+	label: string;
+};
+
+type ProvinceSourceData = FeatureCollection<Geometry, ProvinceSourceProperties>;
+let provinceGeoJsonPromise: Promise<ProvinceSourceData> | null = null;
+
+const provinceToPWCode: Record<string, string> = {
+	"Sulawesi Tengah": "ST", "Sulawesi Barat": "SR", "Sulawesi Selatan": "SN", "Papua Tengah": "PA", "Papua Barat": "PA",
+	Gorontalo: "GO", Riau: "RI", "Papua Selatan": "PA", "Daerah Istimewa Yogyakarta": "YO", "Sumatera Barat": "SB",
+	"DKI Jakarta": "JK", Maluku: "MA", Bengkulu: "BE", Lampung: "LA", Papua: "PA", "Kepulauan Riau": "KR",
+	"Nusa Tenggara Barat": "NB", Jambi: "JA", Bali: "BA", "Jawa Timur": "JI", "Papua Barat Daya": "PA", "Sumatera Utara": "SU",
+	"Sulawesi Tenggara": "SG", "Nusa Tenggara Timur": "NT", "Kalimantan Selatan": "KS", Aceh: "AC", "Kalimantan Tengah": "KT",
+	"Papua Pegunungan": "PA", "Kepulauan Bangka Belitung": "BB", "Sumatera Selatan": "SS", Banten: "BT", "Sulawesi Utara": "SA",
+	"Kalimantan Utara": "KU", "Kalimantan Timur": "KU", "Jawa Tengah": "JT", "Maluku Utara": "MU", "Kalimantan Barat": "KB", "Jawa Barat": "JB",
+};
+
+const pwRegionByCode = new Map(pwRegions.map((region) => [region.code, region]));
+
+function regionMapLabel(region: (typeof pwRegions)[number]) {
+	return region.candidate
+		? `${region.name}: ${region.candidate} terkuat, ${region.participants} partisipan`
+		: `${region.name}: data belum cukup, ${region.participants} partisipan`;
+}
+
+function loadProvinceGeoJson() {
+	provinceGeoJsonPromise ??= fetch(provinceGeoJsonUrl)
+		.then(async (response) => {
+			if (!response.ok) throw new Error(`GeoJSON gagal dimuat (${response.status})`);
+			const geoJson = await response.json() as FeatureCollection<Geometry, { PROVINSI?: string }>;
+			return {
+				type: "FeatureCollection" as const,
+				features: geoJson.features.map((feature) => {
+					const provinceName = String(feature.properties?.PROVINSI ?? "Wilayah");
+					const region = pwRegionByCode.get(provinceToPWCode[provinceName]);
+					return {
+						...feature,
+						properties: {
+							PROVINSI: provinceName,
+							pwCode: region?.code ?? "",
+							fillColor: region?.color ?? "#aeb7b0",
+							withheld: !region?.candidate,
+							label: region ? regionMapLabel(region) : `${provinceName}: belum dipetakan ke PW`,
+						},
+					};
+				}),
+			};
+		})
+		.catch((error: unknown) => {
+			provinceGeoJsonPromise = null;
+			throw error;
+		});
+	return provinceGeoJsonPromise;
+}
+
+let maplibrePromise: Promise<typeof import("maplibre-gl")> | null = null;
+
+function loadMapLibre() {
+	maplibrePromise ??= import("maplibre-gl").then((maplibre) => {
+		maplibre.setWorkerUrl(maplibreWorkerUrl);
+		return maplibre;
+	});
+	return maplibrePromise;
+}
+
+const openFreeMapStyleUrl = "https://tiles.openfreemap.org/styles/positron";
+
+const provinceFillLayer: FillLayerSpecification = {
+	id: "pw-provinces-fill",
+	type: "fill",
+	source: "pw-provinces",
+	paint: {
+		"fill-color": ["coalesce", ["get", "fillColor"], "#aeb7b0"],
+		"fill-opacity": ["case", ["==", ["get", "withheld"], true], 0.48, 0.82],
+	},
+};
+
+const provinceLineLayer: LineLayerSpecification = {
+	id: "pw-provinces-line",
+	type: "line",
+	source: "pw-provinces",
+	paint: { "line-color": "#ffffff", "line-width": 1.25 },
+};
+
+const withheldLineLayer: LineLayerSpecification = {
+	id: "pw-provinces-withheld-line",
+	type: "line",
+	source: "pw-provinces",
+	filter: ["==", ["get", "withheld"], true],
+	paint: { "line-color": "#65716a", "line-dasharray": [3, 2], "line-width": 1.35 },
+};
+
+const interactiveMapLayers = [provinceFillLayer.id];
+const mapAttribution = '<a href="https://github.com/denyherianto/indonesia-geojson-topojson-maps-with-38-provinces">Batas provinsi · CC BY 4.0</a>';
+
+function MapLibreCoverageMap({ selectedPWCode, onSelectPW }: { selectedPWCode: string | null; onSelectPW: (region: (typeof pwRegions)[number]) => void }) {
+	const [geoJson, setGeoJson] = useState<ProvinceSourceData | null>(null);
+	const [loadError, setLoadError] = useState<string | null>(null);
+	const [loadAttempt, setLoadAttempt] = useState(0);
+	const [rendererReady, setRendererReady] = useState(false);
+	const [hoverInfo, setHoverInfo] = useState<{ longitude: number; latitude: number; label: string } | null>(null);
+	const selectedLineLayer = useMemo<LineLayerSpecification>(() => ({
+		id: "pw-provinces-selected-line",
+		type: "line",
+		source: "pw-provinces",
+		filter: ["==", ["get", "pwCode"], selectedPWCode ?? "__none__"],
+		paint: { "line-color": "#162024", "line-width": 3 },
+	}), [selectedPWCode]);
+
+	useEffect(() => {
+		let active = true;
+		void loadProvinceGeoJson()
+			.then((data) => { if (active) setGeoJson(data); })
+			.catch((error: unknown) => {
+				if (active) setLoadError(error instanceof Error ? error.message : "Batas wilayah gagal dimuat");
+			});
+		return () => { active = false; };
+	}, [loadAttempt]);
+
+	const handleMapClick = (event: MapLayerMouseEvent) => {
+		const code = String(event.features?.[0]?.properties?.pwCode ?? "");
+		const region = pwRegionByCode.get(code);
+		if (region) onSelectPW(region);
+	};
+
+	const handleMapHover = (event: MapLayerMouseEvent) => {
+		const label = String(event.features?.[0]?.properties?.label ?? "");
+		if (!label) return setHoverInfo(null);
+		setHoverInfo({ longitude: event.lngLat.lng, latitude: event.lngLat.lat, label });
+	};
+
+	return (
+		<div className="maplibre-map-shell" aria-busy={!loadError && (!rendererReady || !geoJson)}>
+			<ReactMap
+				key={loadAttempt}
+				mapLib={loadMapLibre()}
+				mapStyle={openFreeMapStyleUrl}
+				initialViewState={{ bounds: indonesiaBounds, fitBoundsOptions: { padding: 20, maxZoom: 4.75 } }}
+				maxBounds={indonesiaBounds}
+				minZoom={3}
+				maxZoom={7}
+				renderWorldCopies={false}
+				scrollZoom={false}
+				dragRotate={false}
+				touchPitch={false}
+				attributionControl={false}
+				interactiveLayerIds={geoJson ? interactiveMapLayers : []}
+				cursor={hoverInfo ? "pointer" : "grab"}
+				onClick={handleMapClick}
+				onMouseMove={handleMapHover}
+				onMouseLeave={() => setHoverInfo(null)}
+				onLoad={() => setRendererReady(true)}
+				onError={(event) => setLoadError(event.error.message || "Renderer peta gagal dimuat")}
+			>
+				{geoJson && (
+					<Source id="pw-provinces" type="geojson" data={geoJson}>
+						<Layer {...provinceFillLayer} />
+						<Layer {...provinceLineLayer} />
+						<Layer {...withheldLineLayer} />
+						<Layer {...selectedLineLayer} />
+					</Source>
+				)}
+				{pwRegions.map((region) => (
+					<Marker key={region.code} longitude={region.longitude} latitude={region.latitude} anchor="center">
+						<button
+							type="button"
+							className="pw-map-keyboard-marker"
+							aria-label={`Pilih ${region.name}: ${regionMapLabel(region)}`}
+							aria-pressed={selectedPWCode === region.code}
+							onClick={() => onSelectPW(region)}
+						/>
+					</Marker>
+				))}
+				<NavigationControl position="top-left" showCompass={false} />
+				<AttributionControl position="bottom-right" compact customAttribution={mapAttribution} />
+				{hoverInfo && <Popup longitude={hoverInfo.longitude} latitude={hoverInfo.latitude} closeButton={false} closeOnClick={false} offset={12} className="pw-area-tooltip">{hoverInfo.label}</Popup>}
+			</ReactMap>
+			{(!rendererReady || !geoJson) && !loadError && <p className="map-load-status" role="status">Menyiapkan peta wilayah…</p>}
+			{loadError && <div className="map-load-error" role="alert"><span>{loadError}.</span><button type="button" onClick={() => { setLoadError(null); setRendererReady(false); setLoadAttempt((attempt) => attempt + 1); }}>Coba lagi</button></div>}
+		</div>
+	);
+}
+
 function RegionMap() {
-	const requestedPW = new URLSearchParams(window.location.search).get("pw");
-	const [selectedPW, setSelectedPW] = useState(() => pwRegions.find((region) => region.code === requestedPW || region.name === requestedPW) || null);
+	const requestedPW = currentSearchParams().get("pw");
+	const [selectedPW, setSelectedPWState] = useState(() => pwRegions.find((region) => region.code === requestedPW || region.name === requestedPW) || null);
 	const selectedSeed = selectedPW ? pwSeeds.findIndex((seed) => seed[1] === selectedPW.code) : -1;
 	const topFive = selectedPW ? topFiveForPW(pwSeeds[selectedSeed][5], selectedSeed) : [];
 
 	useEffect(() => {
-		if (!selectedPW) return;
-		const closeOnEscape = (event: KeyboardEvent) => { if (event.key === "Escape") setSelectedPW(null); };
-		window.addEventListener("keydown", closeOnEscape);
-		return () => window.removeEventListener("keydown", closeOnEscape);
-	}, [selectedPW]);
+		const sync = () => {
+			const requested = currentSearchParams().get("pw");
+			setSelectedPWState(pwRegions.find((region) => region.code === requested || region.name === requested) || null);
+		};
+		window.addEventListener("popstate", sync);
+		return () => window.removeEventListener("popstate", sync);
+	}, []);
+
+	const setSelectedPW = (region: (typeof pwRegions)[number] | null) => {
+		updateSearchParams({ pw: region?.code ?? null }, Boolean(region));
+		setSelectedPWState(region);
+	};
 
 	return (
-		<div className="region-map">
-			<div className="region-map__meta"><span>{pwRegions.length} PW · {totalPWParticipants.toLocaleString("id-ID")} partisipan</span><span>Warna menunjukkan kandidat terkuat</span></div>
-			<div className="candidate-legend">{candidateColors.map((color, index) => <span key={color}><i style={{ background: color }} />{candidateNames[index]}</span>)}<span><i className="legend-unavailable" />Data belum cukup</span></div>
-			<svg viewBox="0 0 840 260" role="img" aria-label="Peta 32 PW. Warna tiap titik menunjukkan kandidat terkuat pada wilayah dengan sedikitnya 10 partisipan.">
-				<path className="map-land" d="M55 39l35 18 30 40 28 46 34 28-17 20-34-21-34-50-33-35-25-30z" />
-				<path className="map-land" d="M201 190l88 6 71 18-17 20-100-8-49-19z" />
-				<path className="map-land" d="M349 45l91-25 75 35-10 93-67 41-80-39-29-62z" />
-				<path className="map-land" d="M532 58l29 25 22-31 17 18-18 48 43 25-20 24-37-17-17 50-21-15 13-55-33-23z" />
-				<path className="map-land" d="M646 181l28 4 23 15-17 12-42-9z" />
-				<path className="map-land" d="M720 76l94-3 28 61-40 61-78-21-19-59z" />
-				<path className="map-islets" d="M375 226h20m17 6h18m16 1h23m15 7h19m122-30h17" />
-				{pwRegions.map((region) => (
-					<g className={selectedPW?.name === region.name ? "map-point map-point--selected" : "map-point"} key={region.name} role="button" tabIndex={0} aria-haspopup="dialog" aria-label={region.candidate ? `${region.name}: ${region.candidate} terkuat, ${region.participants} partisipan` : `${region.name}: data belum cukup, ${region.participants} partisipan`} onClick={() => setSelectedPW(region)} onKeyDown={(event) => { if (event.key === "Enter" || event.key === " ") { event.preventDefault(); setSelectedPW(region); } }}>
-						<title>{region.candidate ? `${region.name} · ${region.candidate} · ${region.participants} partisipan` : `${region.name} · Data belum cukup · ${region.participants} partisipan`}</title>
-						<circle cx={region.x} cy={region.y} r="10" style={{ "--region-color": region.color } as CSSProperties} />
-						<text x={region.x} y={region.y + 3} textAnchor="middle">{region.code}</text>
-					</g>
-				))}
-			</svg>
-			<div className="map-note"><span>Pilih titik PW untuk melihat Top 5 wilayah. Standing global tidak berubah.</span></div>
-			<p className="microcopy">Eksperimen: PW dengan cohort di bawah 10 ditampilkan abu-abu. Warna menunjukkan kandidat terkuat, bukan margin kemenangan atau representasi seluruh kader.</p>
-			{selectedPW && (
-				<div className="pw-dialog-backdrop" role="presentation" onMouseDown={(event) => { if (event.target === event.currentTarget) setSelectedPW(null); }}>
-					<section className="pw-dialog" role="dialog" aria-modal="true" aria-labelledby="pw-dialog-title">
-						<button className="pw-dialog__close" autoFocus onClick={() => setSelectedPW(null)} aria-label="Tutup detail PW">×</button>
+			<div className="region-map">
+				<div className="region-map__meta"><span>{pwRegions.length} PW · {totalPWParticipants.toLocaleString("id-ID")} partisipan</span><span>Warna menunjukkan kandidat terkuat</span></div>
+				<div className="candidate-legend">{candidateColors.map((color, index) => <span key={color}><i style={{ background: color }} />{candidateNames[index]}</span>)}<span><i className="legend-unavailable" />Data belum cukup</span></div>
+
+				<div className="maplibre-map-frame" role="group" aria-labelledby="pw-map-instructions">
+					<MapLibreCoverageMap selectedPWCode={selectedPW?.code ?? null} onSelectPW={setSelectedPW} />
+				</div>
+				<p id="pw-map-instructions" className="microcopy">Klik wilayah pada peta untuk membuka detail. Dengan keyboard, fokuskan peta lalu tekan Tab hingga nama PW yang dituju dan tekan Enter. PW dengan cohort di bawah 10 ditampilkan abu-abu; warna menunjukkan kandidat terkuat, bukan margin kemenangan atau representasi seluruh kader.</p>
+				{selectedPW && (
+					<ModalDialog labelledBy="pw-dialog-title" onClose={() => setSelectedPW(null)}>
+							<button className="pw-dialog__close" autoFocus onClick={() => setSelectedPW(null)} aria-label="Tutup detail PW">×</button>
 						<span className="eyebrow">Per PW · data simulasi</span>
 						<h2 id="pw-dialog-title">{selectedPW.name}</h2>
 						<p>{selectedPW.participants.toLocaleString("id-ID")} partisipan</p>
@@ -423,9 +806,8 @@ function RegionMap() {
 							<div className="pw-dialog__withheld"><b>Data belum cukup</b><span>Top 5 ditahan karena cohort di bawah 10 partisipan.</span></div>
 						)}
 						<p className="microcopy">Persentase dari nilai terkontrol dan dibulatkan. Sisa pilihan tidak ditampilkan.</p>
-					</section>
-				</div>
-			)}
+					</ModalDialog>
+				)}
 		</div>
 	);
 }
@@ -438,8 +820,7 @@ function CandidateDialog({ name, onClose }: { name: string; onClose: () => void 
 	const reasons = [0, 1, 2].map((offset) => themeRows[(candidateIndex + offset) % themeRows.length]);
 	const standing = rankedResults[candidateIndex];
 	return (
-		<div className="pw-dialog-backdrop" role="presentation" onMouseDown={(event) => { if (event.target === event.currentTarget) onClose(); }}>
-			<section className="pw-dialog candidate-dialog" role="dialog" aria-modal="true" aria-labelledby="candidate-dialog-title">
+		<ModalDialog labelledBy="candidate-dialog-title" className="candidate-dialog" onClose={onClose}>
 				<button className="pw-dialog__close" autoFocus onClick={onClose} aria-label="Tutup detail kandidat">×</button>
 				<span className="eyebrow">Profil bakal kandidat · data simulasi</span>
 				<h2 id="candidate-dialog-title">{name}</h2>
@@ -453,8 +834,7 @@ function CandidateDialog({ name, onClose }: { name: string; onClose: () => void 
 					<ol>{reasons.map((reason, index) => <li key={reason.conclusion}><i>{index + 1}</i><span><b>{reason.conclusion}</b><small>{reason.comment.replace("Parafrasa: ", "")}</small></span></li>)}</ol>
 				</div>
 				<p className="microcopy">Parafrasa sintetis untuk menguji informasi; bukan kutipan partisipan.</p>
-			</section>
-		</div>
+		</ModalDialog>
 	);
 }
 
@@ -482,29 +862,57 @@ function ProfileCards() {
 }
 
 function VariantB({ scene }: { scene: SceneKey }) {
-	const initialView = new URLSearchParams(window.location.search).get("view");
-	const [view, setView] = useState<"standing" | "pw" | "pd" | "profile" | "themes">(initialView === "pw" || initialView === "pd" || initialView === "profile" || (initialView === "themes" && scene === "final") ? initialView : "standing");
-	const [showNotice, setShowNotice] = useState(true);
+	const requestedView = currentSearchParams().get("view");
+	const [view, setViewState] = useState<ViewKey>(requestedView === "pw" || requestedView === "pd" || requestedView === "profile" || (requestedView === "themes" && scene === "final") ? requestedView : "standing");
+	const [filterValues, setFilterValues] = useState<FilterValues>(() => filtersFromUrl(scene));
 	const activeView = view === "themes" && scene !== "final" ? "standing" : view;
+	const activeFilterLabels = filterLabels(filterValues);
+
+	useEffect(() => {
+		const sync = () => {
+			const requested = currentSearchParams().get("view");
+			setViewState(requested === "pw" || requested === "pd" || requested === "profile" || (requested === "themes" && scene === "final") ? requested : "standing");
+			setFilterValues(filtersFromUrl(scene));
+		};
+		window.addEventListener("popstate", sync);
+		return () => window.removeEventListener("popstate", sync);
+	}, [scene]);
+
+	const setView = (nextView: ViewKey) => {
+		updateSearchParams({ view: nextView, candidate: null, pw: null }, true);
+		setViewState(nextView);
+	};
+
+	const changeFilter = (key: FilterKey, value: string) => {
+		setFilterValues((current) => ({ ...current, [key]: value }));
+		updateSearchParams({ [filterQueryKeys[key]]: value || null });
+	};
+
+	const resetFilters = () => {
+		setFilterValues({ ...emptyFilters });
+		updateSearchParams(Object.fromEntries(Object.values(filterQueryKeys).map((key) => [key, null])));
+	};
+
 	return (
-		<div className="variant variant-b">
-			<header className="b-nav"><Brand /><Status scene={scene} compact /></header>
-			<main>
-				<section className="b-dashboard-hero">
-					<nav className="data-tabs" aria-label="Tampilan dashboard">
-						<button className={activeView === "standing" ? "active" : ""} onClick={() => setView("standing")}>Standing</button>
-						<button className={activeView === "pw" ? "active" : ""} onClick={() => setView("pw")}>Per PW</button>
-						<button className={activeView === "pd" ? "active" : ""} onClick={() => setView("pd")}>Per PD</button>
-						<button className={activeView === "profile" ? "active" : ""} onClick={() => setView("profile")}>Profil</button>
-						<button className={activeView === "themes" ? "active" : ""} disabled={scene !== "final"} title={scene === "final" ? "Alasan dan Harapan" : "Tersedia setelah Hasil Akhir"} onClick={() => setView("themes")}>Alasan dan Harapan {scene !== "final" && "· setelah final"}</button>
+			<div id="top" className={`variant variant-b${import.meta.env.DEV ? " variant-b--prototype" : ""}`}>
+				<a href="#dashboard-content" className="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-50 focus:rounded-lg focus:bg-white focus:px-4 focus:py-3 focus:font-bold focus:text-teal-900">Lewati ke isi dashboard</a>
+				<header className="b-nav"><Brand /><Status scene={scene} compact /></header>
+				<main id="dashboard-content" tabIndex={-1}>
+					<h1 className="sr-only">Standing Survei Preferensi Project Mandala</h1>
+					<section className="b-dashboard-hero">
+						<nav className="data-tabs" aria-label="Tampilan dashboard">
+							<button aria-pressed={activeView === "standing"} className={activeView === "standing" ? "active" : ""} onClick={() => setView("standing")}>Standing</button>
+							<button aria-pressed={activeView === "pw"} className={activeView === "pw" ? "active" : ""} onClick={() => setView("pw")}>Per PW</button>
+							<button aria-pressed={activeView === "pd"} className={activeView === "pd" ? "active" : ""} onClick={() => setView("pd")}>Per PD</button>
+							<button aria-pressed={activeView === "profile"} className={activeView === "profile" ? "active" : ""} onClick={() => setView("profile")}>Profil</button>
+								<button aria-pressed={activeView === "themes"} className={activeView === "themes" ? "active" : ""} disabled={scene !== "final"} onClick={() => setView("themes")}>Alasan dan Harapan {scene !== "final" && "· setelah final"}</button>
 					</nav>
 					{activeView === "standing" && <>
-						<StandingPlot scene={scene} />
-						<details className="b-filter-panel">
-							<summary><span><b>Filter Profil Partisipan</b><small>Semua partisipan</small></span><span aria-hidden="true">＋</span></summary>
-							<FilterControls scene={scene} compact />
+							<StandingPlot scene={scene} filters={filterValues} onClearFilters={resetFilters} />
+							<details className="b-filter-panel">
+								<summary><span><b>Filter Profil Partisipan</b><small>{activeFilterLabels.length ? activeFilterLabels.join(" · ") : "Semua partisipan"}</small></span><span aria-hidden="true">＋</span></summary>
+								<FilterControls scene={scene} compact values={filterValues} onChange={changeFilter} onReset={resetFilters} />
 						</details>
-						<p className="b-fine-print"><b>Bukan hasil pemilihan.</b> Partisipasi self-selected; status kader tidak diverifikasi; satu nomor WhatsApp bukan bukti satu kader unik. Project Mandala independen, tidak didukung PP KAMMI, dan hasilnya non-binding. <a href="#metode">Metode lengkap</a></p>
 					</>}
 					{activeView === "pw" && <RegionMap />}
 					{activeView === "pd" && <PDTable />}
@@ -512,8 +920,10 @@ function VariantB({ scene }: { scene: SceneKey }) {
 					{activeView === "themes" && <ThemeTable />}
 				</section>
 			</main>
-			<footer id="metode">Data simulasi · Project Mandala independen, tidak resmi, dan non-binding · <a href="#top">Metode & privasi</a></footer>
-			{showNotice && <aside className="b-toast" role="status"><button onClick={() => setShowNotice(false)} aria-label="Tutup catatan batasan">×</button><b>Standing, bukan hasil pemilihan</b><span>Data menggambarkan partisipan survei ini saja. Batasan lengkap tetap tersedia di bawah chart.</span></aside>}
+				<footer id="metode">
+					<p>Data simulasi · Project Mandala independen, tidak resmi, dan non-binding.</p>
+					<details><summary>Metode & privasi</summary><p>Standing berasal dari Respons self-selected. Status kader dan satu-kader-satu-nomor tidak diverifikasi. Total global tampil tepat; rincian dapat dibulatkan atau ditahan. Teks mentah Alasan dan Harapan tidak dipublikasikan.</p></details>
+				</footer>
 		</div>
 	);
 }
@@ -565,9 +975,9 @@ function App() {
 	const controls = usePrototypeUrl();
 	return (
 		<>
-			{controls.variant === "A" && <VariantA scene={controls.scene} />}
-			{controls.variant === "B" && <VariantB scene={controls.scene} />}
-			{controls.variant === "C" && <VariantC scene={controls.scene} />}
+			{controls.variant === "A" && <VariantA key={controls.scene} scene={controls.scene} />}
+			{controls.variant === "B" && <VariantB key={controls.scene} scene={controls.scene} />}
+			{controls.variant === "C" && <VariantC key={controls.scene} scene={controls.scene} />}
 			{!import.meta.env.PROD && <PrototypeSwitcher {...controls} />}
 		</>
 	);

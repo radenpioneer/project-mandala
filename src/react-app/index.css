@@ -1,3 +1,5 @@
+@import "tailwindcss";
+
 :root {
 	font-family: Inter, ui-sans-serif, system-ui, sans-serif;
 	color: #17211c;
@@ -13,3 +15,6 @@ button, select { font: inherit; }
 button, a, select { -webkit-tap-highlight-color: transparent; }
 button:focus-visible, a:focus-visible, select:focus-visible { outline: 3px solid #276754; outline-offset: 3px; }
 a { color: inherit; }
+
+::selection { background: #c5e4dc; color: #162024; }
+* { scrollbar-color: #84958d #edf0eb; scrollbar-width: thin; }
